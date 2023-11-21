@@ -2,118 +2,117 @@
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
-namespace YandexDisk.Client.Http
+
+namespace YandexDisk.Client.Http;
+
+internal interface ILogger: IDisposable
 {
-    internal interface ILogger: IDisposable
+    Task SetRequestAsync(HttpRequestMessage request);
+
+    Task SetResponseAsync(HttpResponseMessage httpResponseMessage);
+
+    void EndWithSuccess();
+
+    void EndWithError(Exception e);
+}
+
+internal class Logger : ILogger
+{
+    private readonly ILogSaver _log;
+    private readonly RequestLog _requestLog = new RequestLog();
+    private readonly ResponseLog _responseLog = new ResponseLog();
+    private readonly Stopwatch _stopwatch = new Stopwatch();
+
+    internal Logger(ILogSaver log)
     {
-        Task SetRequestAsync([NotNull] HttpRequestMessage request);
-
-        Task SetResponseAsync([NotNull] HttpResponseMessage httpResponseMessage);
-
-        void EndWithSuccess();
-
-        void EndWithError([NotNull] Exception e);
+        _log = log;
     }
 
-    internal class Logger : ILogger
+    public async Task SetRequestAsync(HttpRequestMessage request)
     {
-        private readonly ILogSaver _log;
-        private readonly RequestLog _requestLog = new RequestLog();
-        private readonly ResponseLog _responseLog = new ResponseLog();
-        private readonly Stopwatch _stopwatch = new Stopwatch();
-
-        internal Logger(ILogSaver log)
+        _requestLog.Headers = request.ToString();
+        if (request.Content != null)
         {
-            _log = log;
+            _requestLog.Body = await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
         }
 
-        public async Task SetRequestAsync(HttpRequestMessage request)
+        _requestLog.StartedAt = DateTime.Now;
+        _stopwatch.Start();
+    }
+
+    public async Task SetResponseAsync(HttpResponseMessage httpResponseMessage)
+    {
+        _stopwatch.Stop();
+
+        _responseLog.Headers = httpResponseMessage.ToString();
+        _responseLog.StatusCode = httpResponseMessage.StatusCode;
+
+        if (httpResponseMessage.Content != null)
         {
-            _requestLog.Headers = request.ToString();
-            if (request.Content != null)
-            {
-                _requestLog.Body = await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-            }
-
-            _requestLog.StartedAt = DateTime.Now;
-            _stopwatch.Start();
-        }
-
-        public async Task SetResponseAsync(HttpResponseMessage httpResponseMessage)
-        {
-            _stopwatch.Stop();
-
-            _responseLog.Headers = httpResponseMessage.ToString();
-            _responseLog.StatusCode = httpResponseMessage.StatusCode;
-
-            if (httpResponseMessage.Content != null)
-            {
-                _responseLog.Body = await httpResponseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-            }
-        }
-
-        public void EndWithSuccess()
-        {
-            _responseLog.Duration = _stopwatch.ElapsedMilliseconds;
-
-            SaveLog();
-        }
-
-        public void EndWithError(Exception e)
-        {
-            _responseLog.Exception = e.Message;
-            _responseLog.Duration = _stopwatch.ElapsedMilliseconds;
-
-            SaveLog();
-        }
-
-        private void SaveLog()
-        {
-            _log?.SaveLog(_requestLog, _responseLog);
-
-            _isDisposed = true;
-        }
-
-        private bool _isDisposed;
-
-        public void Dispose()
-        {
-            if (!_isDisposed)
-            {
-                EndWithError(new Exception("Log object is never ended. You should end log befor disposing."));
-            }
+            _responseLog.Body = await httpResponseMessage.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
         }
     }
 
-    internal class DummyLogger : ILogger
+    public void EndWithSuccess()
     {
-        public void Dispose()
-        { }
+        _responseLog.Duration = _stopwatch.ElapsedMilliseconds;
 
-        public Task SetRequestAsync(HttpRequestMessage request)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task SetResponseAsync(HttpResponseMessage httpResponseMessage)
-        {
-            return Task.CompletedTask;
-        }
-
-        public void EndWithSuccess()
-        { }
-
-        public void EndWithError(Exception e)
-        { }
+        SaveLog();
     }
 
-    internal static class LoggerFactory
+    public void EndWithError(Exception e)
     {
-        public static ILogger GetLogger([CanBeNull] ILogSaver saver)
+        _responseLog.Exception = e.Message;
+        _responseLog.Duration = _stopwatch.ElapsedMilliseconds;
+
+        SaveLog();
+    }
+
+    private void SaveLog()
+    {
+        _log?.SaveLog(_requestLog, _responseLog);
+
+        _isDisposed = true;
+    }
+
+    private bool _isDisposed;
+
+    public void Dispose()
+    {
+        if (!_isDisposed)
         {
-            return saver != null ? (ILogger)new Logger(saver) : new DummyLogger();
+            EndWithError(new Exception("Log object is never ended. You should end log befor disposing."));
         }
+    }
+}
+
+internal class DummyLogger : ILogger
+{
+    public void Dispose()
+    { }
+
+    public Task SetRequestAsync(HttpRequestMessage request)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task SetResponseAsync(HttpResponseMessage httpResponseMessage)
+    {
+        return Task.CompletedTask;
+    }
+
+    public void EndWithSuccess()
+    { }
+
+    public void EndWithError(Exception e)
+    { }
+}
+
+internal static class LoggerFactory
+{
+    public static ILogger GetLogger(ILogSaver? saver)
+    {
+        return saver != null ? (ILogger)new Logger(saver) : new DummyLogger();
     }
 }

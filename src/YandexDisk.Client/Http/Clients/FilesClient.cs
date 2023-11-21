@@ -4,50 +4,54 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using YandexDisk.Client.Clients;
+using YandexDisk.Client.Http.Serialization;
 using YandexDisk.Client.Protocol;
 
-namespace YandexDisk.Client.Http.Clients
+namespace YandexDisk.Client.Http.Clients;
+
+internal class FilesClient : DiskClientBase, IFilesClient
 {
-    internal class FilesClient : DiskClientBase, IFilesClient
+    internal FilesClient(ApiContext apiContext)
+        : base(apiContext)
+    { }
+
+    public async Task<Link> GetUploadLinkAsync(string path, bool overwrite, CancellationToken cancellationToken = default(CancellationToken))
     {
-        internal FilesClient(ApiContext apiContext)
-            : base(apiContext)
-        { }
+        var response = await GetAsync(HttpObjectType.Json,"resources/upload", new { path, overwrite }, cancellationToken);
+        
+        return response.DeserializeResponse<Link>(LinkJsonContext.Default);
+    }
 
-        public Task<Link> GetUploadLinkAsync(string path, bool overwrite, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return GetAsync<object, Link>("resources/upload", new { path, overwrite }, cancellationToken);
-        }
+    public Task UploadAsync(Link link, Stream file, CancellationToken cancellationToken = default(CancellationToken))
+    {
+        var url = new Uri(link.Href);
 
-        public Task UploadAsync(Link link, Stream file, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var url = new Uri(link.Href);
+        var method = new HttpMethod(link.Method);
 
-            var method = new HttpMethod(link.Method);
+        var content = new StreamContent(file);
 
-            var content = new StreamContent(file);
+        var requestMessage = new HttpRequestMessage(method, url) { Content = content };
 
-            var requestMessage = new HttpRequestMessage(method, url) { Content = content };
+        return SendAsyncImpl(requestMessage, cancellationToken);
+    }
 
-            return SendAsync(requestMessage, cancellationToken);
-        }
+    public async Task<Link> GetDownloadLinkAsync(string path, CancellationToken cancellationToken)
+    {
+        var response = await GetAsync(HttpObjectType.Json,"resources/download", new { path }, cancellationToken);
+        
+        return response.DeserializeResponse<Link>(LinkJsonContext.Default);
+    }
 
-        public Task<Link> GetDownloadLinkAsync(string path, CancellationToken cancellationToken)
-        {
-            return GetAsync<object, Link>("resources/download", new { path }, cancellationToken);
-        }
+    public async Task<Stream> DownloadAsync(Link link, CancellationToken cancellationToken = default(CancellationToken))
+    {
+        var url = new Uri(link.Href);
 
-        public async Task<Stream> DownloadAsync(Link link, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var url = new Uri(link.Href);
+        var method = new HttpMethod(link.Method);
 
-            var method = new HttpMethod(link.Method);
+        var requestMessage = new HttpRequestMessage(method, url);
 
-            var requestMessage = new HttpRequestMessage(method, url);
+        HttpResponseMessage responseMessage = await SendAsyncImpl(requestMessage, cancellationToken).ConfigureAwait(false);
 
-            HttpResponseMessage responseMessage = await SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
-
-            return await responseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
-        }
+        return await responseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
     }
 }

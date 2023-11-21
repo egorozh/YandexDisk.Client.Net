@@ -1,28 +1,28 @@
 ﻿using System;
 using System.Globalization;
+using YandexDisk.Client.Protocol;
 
-namespace YandexDisk.Client.Http.Serialization
+namespace YandexDisk.Client.Http.Serialization;
+
+internal class ValueSerializer : IObjectSerializer
 {
-    internal class ValueSerializer : IObjectSerializer
+    public string Serialize(object obj, Type type)
     {
-        public string Serialize(object obj, Type type)
+        if (type.IsEnum)
         {
-            if (type.IsEnum)
-            {
-                return SerializeEnum(obj, type);
-            }
-            if (type == typeof(bool))
-            {
-                return obj.ToString().ToLower();
-            }
-            return Convert.ToString(obj, CultureInfo.InvariantCulture);
+            return SerializeEnum(obj, type);
         }
-
-        public string SerializeEnum(object obj, Type type)
+        if (type == typeof(bool))
         {
-            string enumValue = Enum.GetName(type, obj);
-
-            return SnakeCasePropertyResolver.ToSnakeCase(enumValue);
+            return obj.ToString().ToLower();
         }
+        return Convert.ToString(obj, CultureInfo.InvariantCulture);
+    }
+
+    public string SerializeEnum(object obj, Type type)
+    {
+        string enumValue = Enum.GetName(type, obj);
+
+        return SnakeCasePropertyResolver.ToSnakeCase(enumValue);
     }
 }

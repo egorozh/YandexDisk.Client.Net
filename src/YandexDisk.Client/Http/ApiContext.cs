@@ -1,13 +1,12 @@
 ﻿using System;
 
-namespace YandexDisk.Client.Http
-{
-    internal class ApiContext
-    {
-        public IHttpClient HttpClient { get; set; }
-        
-        public Uri BaseUrl { get; set; }
+namespace YandexDisk.Client.Http;
 
-        public ILogSaver LogSaver { get; set; }
-    }
+internal class ApiContext
+{
+    public IHttpClient HttpClient { get; set; }
+        
+    public Uri BaseUrl { get; set; }
+
+    public ILogSaver LogSaver { get; set; }
 }

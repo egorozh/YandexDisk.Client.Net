@@ -1,41 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>
-      netstandard2.0;
-      net6;  
-    </TargetFrameworks>
-    <LangVersion>latest</LangVersion>
-    <Version>0.0.0-dev</Version>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <Version>8.0.0</Version>
     <Product>Yandex Disk RestAPI Client for .NET</Product>
     <Description>.NET library wrapper of Yandex Desktop RestAPI.
 See https://tech.yandex.ru/disk/</Description>
-    <Authors>Yuriy Nagaev</Authors>
+    <Authors>egorozh</Authors>
     <Company />
-    <PackageLicenseUrl>https://github.com/raidenyn/yandexdisk.client/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/raidenyn/yandexdisk.client</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/egorozh/YandexDisk.Client.Net/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/egorozh/YandexDisk.Client.Net</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/raidenyn/yandexdisk.client/master/icon.png</PackageIconUrl>
-    <Copyright>Copyright (c) 2015-2019 Yuriy Nagaev</Copyright>
+    <Copyright>Copyright (c) 2023-2023 Egor Zheludkov</Copyright>
     <PackageTags>yandex, disk, cloud disk, client</PackageTags>
-    <RepositoryUrl>https://github.com/raidenyn/yandexdisk.client</RepositoryUrl>
+    <RepositoryUrl>https://github.com/egorozh/YandexDisk.Client.Net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DocumentationFile>bin\Debug\YandexDisk.Client.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DocumentationFile>bin\Release\YandexDisk.Client.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>
-
+    
 </Project>
