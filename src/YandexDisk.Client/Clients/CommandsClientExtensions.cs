@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Net;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using YandexDisk.Client.Http;
 using YandexDisk.Client.Protocol;
 
+
 namespace YandexDisk.Client.Clients;
+
 
 /// <summary>
 /// Extended file commands
@@ -37,7 +37,7 @@ public static class CommandsClientExtensions
     /// <summary>
     /// Copy file or folder on Disk from one path to another and wait until operation is done
     /// </summary>
-    public static async Task CopyAndWaitAsync(this ICommandsClient client, CopyFileRequest request, CancellationToken cancellationToken = default(CancellationToken), TimeSpan? pullPeriod = null)
+    public static async Task CopyAndWaitAsync(this ICommandsClient client, CopyFileRequest request, CancellationToken cancellationToken = default, TimeSpan? pullPeriod = null)
     {
         var link = await client.CopyAsync(request, cancellationToken).ConfigureAwait(false);
 
@@ -50,7 +50,7 @@ public static class CommandsClientExtensions
     /// <summary>
     /// Move file or folder on Disk from one path to another and wait until operation is done
     /// </summary>
-    public static async Task MoveAndWaitAsync(this ICommandsClient client, MoveFileRequest request, CancellationToken cancellationToken = default(CancellationToken), TimeSpan? pullPeriod = null)
+    public static async Task MoveAndWaitAsync(this ICommandsClient client, MoveFileRequest request, CancellationToken cancellationToken = default, TimeSpan? pullPeriod = null)
     {
         var link = await client.MoveAsync(request, cancellationToken).ConfigureAwait(false);
 
@@ -63,7 +63,7 @@ public static class CommandsClientExtensions
     /// <summary>
     /// Delete file or folder on Disk and wait until operation is done
     /// </summary>
-    public static async Task DeleteAndWaitAsync(this ICommandsClient client, DeleteFileRequest request, CancellationToken cancellationToken = default(CancellationToken), TimeSpan? pullPeriod = null)
+    public static async Task DeleteAndWaitAsync(this ICommandsClient client, DeleteFileRequest request, CancellationToken cancellationToken = default, TimeSpan? pullPeriod = null)
     {
         var link = await client.DeleteAsync(request, cancellationToken).ConfigureAwait(false);
 
@@ -76,7 +76,7 @@ public static class CommandsClientExtensions
     /// <summary>
     /// Empty trash
     /// </summary>
-    public static async Task EmptyTrashAndWaitAsyncAsync(this ICommandsClient client, string path, CancellationToken cancellationToken = default(CancellationToken), TimeSpan? pullPeriod = null)
+    public static async Task EmptyTrashAndWaitAsyncAsync(this ICommandsClient client, string path, CancellationToken cancellationToken = default, TimeSpan? pullPeriod = null)
     {
         var link = await client.EmptyTrashAsync(path, cancellationToken).ConfigureAwait(false);
 
@@ -89,7 +89,7 @@ public static class CommandsClientExtensions
     /// <summary>
     /// Restore files from trash
     /// </summary>
-    public static async Task RestoreFromTrashAndWaitAsyncAsync(this ICommandsClient client, RestoreFromTrashRequest request, CancellationToken cancellationToken = default(CancellationToken), TimeSpan? pullPeriod = null)
+    public static async Task RestoreFromTrashAndWaitAsyncAsync(this ICommandsClient client, RestoreFromTrashRequest request, CancellationToken cancellationToken = default, TimeSpan? pullPeriod = null)
     {
         var link = await client.RestoreFromTrashAsync(request, cancellationToken).ConfigureAwait(false);
 

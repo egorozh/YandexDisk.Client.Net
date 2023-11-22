@@ -17,17 +17,12 @@ internal interface ILogger: IDisposable
     void EndWithError(Exception e);
 }
 
-internal class Logger : ILogger
+internal class Logger(ILogSaver log) : ILogger
 {
-    private readonly ILogSaver _log;
-    private readonly RequestLog _requestLog = new RequestLog();
-    private readonly ResponseLog _responseLog = new ResponseLog();
-    private readonly Stopwatch _stopwatch = new Stopwatch();
-
-    internal Logger(ILogSaver log)
-    {
-        _log = log;
-    }
+    private readonly RequestLog _requestLog = new();
+    private readonly ResponseLog _responseLog = new();
+    private readonly Stopwatch _stopwatch = new();
+    
 
     public async Task SetRequestAsync(HttpRequestMessage request)
     {
@@ -71,7 +66,7 @@ internal class Logger : ILogger
 
     private void SaveLog()
     {
-        _log?.SaveLog(_requestLog, _responseLog);
+        log?.SaveLog(_requestLog, _responseLog);
 
         _isDisposed = true;
     }
@@ -111,8 +106,5 @@ internal class DummyLogger : ILogger
 
 internal static class LoggerFactory
 {
-    public static ILogger GetLogger(ILogSaver? saver)
-    {
-        return saver != null ? (ILogger)new Logger(saver) : new DummyLogger();
-    }
+    public static ILogger GetLogger(ILogSaver? saver) => saver != null ? new Logger(saver) : new DummyLogger();
 }

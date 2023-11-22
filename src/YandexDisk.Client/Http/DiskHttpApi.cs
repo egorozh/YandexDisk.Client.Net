@@ -37,12 +37,7 @@ public class DiskHttpApi : IDiskApi
 
         _httpClient = new RealHttpClientWrapper(httpClient);
 
-        var apiContext = new ApiContext
-        {
-            HttpClient = _httpClient,
-            BaseUrl = new Uri(BaseUrl),
-            LogSaver = logSaver
-        };
+        var apiContext = new ApiContext(_httpClient, new Uri(BaseUrl), logSaver);
 
         Files = new FilesClient(apiContext);
         MetaInfo = new MetaInfoClient(apiContext);
@@ -63,13 +58,8 @@ public class DiskHttpApi : IDiskApi
     {
         BaseUrl = baseUrl;
         _httpClient = httpClient;
-
-        var apiContext = new ApiContext
-        {
-            HttpClient = httpClient,
-            BaseUrl = new Uri(baseUrl),
-            LogSaver = logSaver
-        };
+        
+        var apiContext = new ApiContext(httpClient,new Uri(baseUrl), logSaver);
 
         Files = new FilesClient(apiContext);
         MetaInfo = new MetaInfoClient(apiContext);
@@ -98,8 +88,5 @@ public class DiskHttpApi : IDiskApi
     /// <summary>
     /// Dispose
     /// </summary>
-    public void Dispose()
-    {
-        _httpClient.Dispose();
-    }
+    public void Dispose() => _httpClient.Dispose();
 }

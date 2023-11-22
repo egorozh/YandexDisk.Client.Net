@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using YandexDisk.Client.Http.Serialization;
+using System.Web;
 using YandexDisk.Client.Protocol;
 
 
@@ -19,10 +21,8 @@ internal abstract class DiskClientBase(ApiContext apiContext)
 
     private readonly ILogSaver? _logSaver = apiContext.LogSaver;
     private readonly Uri _baseUrl = apiContext.BaseUrl ?? throw new ArgumentNullException(nameof(apiContext.BaseUrl));
-
-    private static readonly QueryParamsSerializer MvcSerializer = new();
     
-
+    
     protected async Task<HttpObject> ReadResponse(HttpObjectType responseType, HttpResponseMessage responseMessage,
         CancellationToken cancellationToken)
     {
@@ -44,20 +44,19 @@ internal abstract class DiskClientBase(ApiContext apiContext)
             return HttpObject.FromJson(await responseMessage.Content.ReadAsStringAsync(cancellationToken)
                 .ConfigureAwait(false), responseMessage.StatusCode);
 
-        throw new NotSupportedException($"{nameof(DiskClientBase)}.{nameof(ReadResponse)} - responseType type: {responseType} not supported");
+        throw new NotSupportedException(
+            $"{nameof(DiskClientBase)}.{nameof(ReadResponse)} - responseType type: {responseType.GetName()} not supported");
     }
 
 
-    protected Task<HttpObject> GetAsync<TParams>(HttpObjectType responseType, string relativeUrl, TParams? parameters,
-        CancellationToken cancellationToken)
-        where TParams : class
+    protected Task<HttpObject> GetAsync(HttpObjectType responseType, string relativeUrl, NameValueCollection? queryRequest, CancellationToken cancellationToken)
     {
         if (relativeUrl == null)
         {
             throw new ArgumentNullException(nameof(relativeUrl));
         }
 
-        Uri url = GetUrl(relativeUrl, parameters);
+        Uri url = GetUrl(relativeUrl, queryRequest);
 
         var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
@@ -65,39 +64,38 @@ internal abstract class DiskClientBase(ApiContext apiContext)
     }
 
 
-    protected Task<HttpObject> PostAsync<TParams>(HttpObjectType responseType, string relativeUrl, TParams? parameters, HttpObject request,
+    protected Task<HttpObject> PostAsync(HttpObjectType responseType, string relativeUrl, NameValueCollection? queryRequest,
+        HttpObject request,
         CancellationToken cancellationToken)
-        where TParams : class
     {
-        return RequestAsync(responseType, relativeUrl, parameters, request, HttpMethod.Post, cancellationToken);
+        return RequestAsync(responseType, relativeUrl, queryRequest, request, HttpMethod.Post, cancellationToken);
     }
 
 
-    protected Task<HttpObject> PutAsync<TParams>(HttpObjectType responseType, string relativeUrl, TParams? parameters, HttpObject request,
+    protected Task<HttpObject> PutAsync(HttpObjectType responseType, string relativeUrl, NameValueCollection? queryRequest,
+        HttpObject request,
         CancellationToken cancellationToken)
-        where TParams : class
     {
-        return RequestAsync(responseType, relativeUrl, parameters, request, HttpMethod.Put, cancellationToken);
+        return RequestAsync(responseType, relativeUrl, queryRequest, request, HttpMethod.Put, cancellationToken);
     }
 
 
-    protected Task<HttpObject> DeleteAsync<TParams>(HttpObjectType responseType, string relativeUrl, TParams? parameters, HttpObject request,
+    protected Task<HttpObject> DeleteAsync(HttpObjectType responseType, string relativeUrl,
+        NameValueCollection? queryRequest, HttpObject request,
         CancellationToken cancellationToken)
-        where TParams : class
     {
-        return RequestAsync(responseType, relativeUrl, parameters, request, HttpMethod.Delete, cancellationToken);
+        return RequestAsync(responseType, relativeUrl, queryRequest, request, HttpMethod.Delete, cancellationToken);
     }
 
 
-    protected Task<HttpObject> PatchAsync<TParams>(HttpObjectType responseType, string relativeUrl, TParams? parameters, HttpObject request,
+    protected Task<HttpObject> PatchAsync(HttpObjectType responseType, string relativeUrl, NameValueCollection? queryRequest,
+        HttpObject request,
         CancellationToken cancellationToken)
-        where TParams : class
     {
-        return RequestAsync(responseType, relativeUrl, parameters, request, new HttpMethod("PATCH"), cancellationToken);
+        return RequestAsync(responseType, relativeUrl, queryRequest, request, new HttpMethod("PATCH"), cancellationToken);
     }
 
-    
-    
+
     protected async Task<HttpResponseMessage> SendAsyncImpl(HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
@@ -132,21 +130,35 @@ internal abstract class DiskClientBase(ApiContext apiContext)
     private ILogger GetLogger() => LoggerFactory.GetLogger(_logSaver);
 
 
-    private Uri GetUrl(string relativeUrl, object? request = null)
+    private Uri GetUrl(string relativeUrl, NameValueCollection? queryRequest = null)
     {
         var uriBuilder = new UriBuilder(_baseUrl);
         uriBuilder.Path += relativeUrl ?? throw new ArgumentNullException(nameof(relativeUrl));
 
-        if (request != null)
+        if (queryRequest is not null)
         {
-            uriBuilder.Query = MvcSerializer.Serialize(request);
+            uriBuilder.Query = ToQueryString(queryRequest);
         }
 
         return uriBuilder.Uri;
     }
+    
+    private string ToQueryString(NameValueCollection nvc)
+    {
+        var array = (
+            from key in nvc.AllKeys
+            from value in nvc.GetValues(key)
+            select string.Format(
+                "{0}={1}",
+                HttpUtility.UrlEncode(key),
+                HttpUtility.UrlEncode(value))
+        ).ToArray();
+        return "?" + string.Join("&", array);
+    }
 
 
-    private async Task<HttpObject> SendAsync(HttpObjectType responseType, HttpRequestMessage request, CancellationToken cancellationToken)
+    private async Task<HttpObject> SendAsync(HttpObjectType responseType, HttpRequestMessage request,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -158,11 +170,10 @@ internal abstract class DiskClientBase(ApiContext apiContext)
     }
 
 
-    private Task<HttpObject> RequestAsync<TParams>(HttpObjectType responseType, string relativeUrl, TParams? parameters, in HttpObject request,
-        HttpMethod httpMethod, CancellationToken cancellationToken)
-        where TParams : class
+    private Task<HttpObject> RequestAsync(HttpObjectType responseType, string relativeUrl, NameValueCollection? queryRequest,
+        in HttpObject request, HttpMethod httpMethod, CancellationToken cancellationToken)
     {
-        Uri url = GetUrl(relativeUrl, parameters);
+        Uri url = GetUrl(relativeUrl, queryRequest);
 
         HttpContent? content = HttpObject.ToHttpContent(request);
 
@@ -195,7 +206,8 @@ internal abstract class DiskClientBase(ApiContext apiContext)
         try
         {
             return response.Content != null
-                ? JsonSerializer.Deserialize(await response.Content.ReadAsStringAsync().ConfigureAwait(false), ErrorDescriptionJsonContext.Default.ErrorDescription)
+                ? JsonSerializer.Deserialize(await response.Content.ReadAsStringAsync().ConfigureAwait(false),
+                    ErrorDescriptionJsonContext.Default.ErrorDescription)
                 : null;
         }
         catch (SerializationException) //unexpected data in content

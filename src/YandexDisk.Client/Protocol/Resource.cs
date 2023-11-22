@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 
@@ -119,5 +120,7 @@ public enum ResourceType : byte
     File
 }
 
+
 [JsonSerializable(typeof(Resource))]
+[JsonSourceGenerationOptions(UseStringEnumConverter = true, PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]
 internal partial class ResourceJsonContext : JsonSerializerContext;

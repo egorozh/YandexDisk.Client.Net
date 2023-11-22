@@ -37,5 +37,5 @@ public class AboutInfo
     /// <summary>
     /// Default Info for IDiskApi
     /// </summary>
-    public static readonly AboutInfo Client = new AboutInfo(typeof(IDiskApi).Assembly);
+    public static readonly AboutInfo Client = new(typeof(IDiskApi).Assembly);
 }

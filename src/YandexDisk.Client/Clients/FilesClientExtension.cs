@@ -14,7 +14,7 @@ public static class FilesClientExtension
     /// <summary>
     /// Just upload stream data to Yandex Disk
     /// </summary>
-    public static async Task UploadFileAsync( this IFilesClient client,  string path, bool overwrite,  Stream file, CancellationToken cancellationToken = default(CancellationToken))
+    public static async Task UploadFileAsync( this IFilesClient client,  string path, bool overwrite,  Stream file, CancellationToken cancellationToken = default)
     {
         if (client == null)
         {
@@ -63,7 +63,7 @@ public static class FilesClientExtension
     /// <summary>
     /// Get downloaded file from Yandex Disk as stream
     /// </summary>
-    public static async Task<Stream> DownloadFileAsync( this IFilesClient client,  string path, CancellationToken cancellationToken = default(CancellationToken))
+    public static async Task<Stream> DownloadFileAsync( this IFilesClient client,  string path, CancellationToken cancellationToken = default)
     {
         if (client == null)
         {
@@ -82,7 +82,7 @@ public static class FilesClientExtension
     /// <summary>
     /// Downloaded data from Yandex Disk to local file
     /// </summary>
-    public static async Task DownloadFileAsync( this IFilesClient client,  string path,  string localFile, CancellationToken cancellationToken = default(CancellationToken))
+    public static async Task DownloadFileAsync( this IFilesClient client,  string path,  string localFile, CancellationToken cancellationToken = default)
     {
         if (client == null)
         {

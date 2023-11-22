@@ -13,5 +13,5 @@ public interface IHttpClient: IDisposable
     /// <summary>
     /// Send http-request to API
     /// </summary>
-    Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default(CancellationToken));
+    Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default);
 }

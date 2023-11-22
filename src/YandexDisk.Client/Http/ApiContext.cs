@@ -2,11 +2,11 @@
 
 namespace YandexDisk.Client.Http;
 
-internal class ApiContext
+internal class ApiContext(IHttpClient httpClient, Uri baseUrl, ILogSaver? logSaver)
 {
-    public IHttpClient HttpClient { get; set; }
-        
-    public Uri BaseUrl { get; set; }
+    public IHttpClient HttpClient { get; } = httpClient;
 
-    public ILogSaver LogSaver { get; set; }
+    public Uri BaseUrl { get; } = baseUrl;
+
+    public ILogSaver? LogSaver { get; } = logSaver;
 }

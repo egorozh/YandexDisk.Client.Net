@@ -4,23 +4,15 @@ using System.Threading.Tasks;
 
 namespace YandexDisk.Client.Http;
 
-internal class RealHttpClientWrapper: IHttpClient
+internal class RealHttpClientWrapper(HttpMessageInvoker httpMessageInvoker): IHttpClient
 {
-    public RealHttpClientWrapper(HttpMessageInvoker httpMessageInvoker)
-    {
-        HttpMessageInvoker = httpMessageInvoker;
-    }
-
-    private HttpMessageInvoker HttpMessageInvoker { get; }
+    private HttpMessageInvoker HttpMessageInvoker { get; } = httpMessageInvoker;
 
 
-    public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default(CancellationToken))
+    public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
     {
         return HttpMessageInvoker.SendAsync(request, cancellationToken);
     }
 
-    public void Dispose()
-    {
-        HttpMessageInvoker.Dispose();
-    }
+    public void Dispose() => HttpMessageInvoker.Dispose();
 }
