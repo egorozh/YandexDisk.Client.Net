@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Web;
 
 namespace YandexDisk.Client.Tests
 {
@@ -19,7 +20,7 @@ namespace YandexDisk.Client.Tests
             string path = parts[0];
             string query = string.Join("?", parts.Skip(1));
 
-            return path + "?" + query.Replace("/", "%2F").Replace(",", "%2C");
+            return path + "?" + query.Replace("/", HttpUtility.UrlEncode("/")).Replace(",", HttpUtility.UrlEncode(","));
         }
     }
 }

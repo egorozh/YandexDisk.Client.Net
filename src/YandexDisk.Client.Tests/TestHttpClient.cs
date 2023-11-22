@@ -18,7 +18,7 @@ namespace YandexDisk.Client.Tests
 
         public static readonly string BaseUrl = "http://ya.ru/api/";
         public static readonly string ApiKey = "test-api-key";
-        public static readonly string Token = "test-token";
+
         
         public TestHttpClient(string methodName,
                               string url,
@@ -33,11 +33,12 @@ namespace YandexDisk.Client.Tests
             _result = result;
         }
 
-        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             Assert.NotNull(request);
             Assert.AreEqual(_methodName, request.Method.Method);
-            Assert.AreEqual(_url, request.RequestUri.ToString());
+            string requestUrl = request.RequestUri.ToString();
+            Assert.AreEqual(_url, requestUrl);
 
             if (request.Content != null && _request != null)
             {

@@ -143,7 +143,7 @@ internal abstract class DiskClientBase(ApiContext apiContext)
         return uriBuilder.Uri;
     }
     
-    private string ToQueryString(NameValueCollection nvc)
+    private static string ToQueryString(NameValueCollection nvc)
     {
         var array = (
             from key in nvc.AllKeys
@@ -153,7 +153,7 @@ internal abstract class DiskClientBase(ApiContext apiContext)
                 HttpUtility.UrlEncode(key),
                 HttpUtility.UrlEncode(value))
         ).ToArray();
-        return "?" + string.Join("&", array);
+        return "?" + string.Join('&', array);
     }
 
 

@@ -50,46 +50,48 @@ namespace YandexDisk.Client.Tests
         {
             var httpClientTest = new TestHttpClient(
                 methodName: "GET", 
-                url: TestHttpClient.BaseUrl + Url.EscapePath("resources?sort=name&path=/&limit=20&offset=0"), 
+                url: TestHttpClient.BaseUrl + Url.EscapePath("resources?path=/&limit=20&offset=0&sort=name"), 
                 httpStatusCode: HttpStatusCode.OK,
-                result: @"
-{
-  ""public_key"": ""HQsmHLoeyBlJf8Eu1jlmzuU+ZaLkjPkgcvmokRUCIo8="",
-  ""_embedded"": {
-    ""sort"": """",
-    ""path"": ""disk:/foo"",
-    ""items"": [
-      {
-        ""path"": ""disk:/foo/bar"",
-        ""type"": ""dir"",
-        ""name"": ""bar"",
-        ""modified"": ""2014-04-22T10:32:49+04:00"",
-        ""created"": ""2014-04-22T10:32:49+04:00""
-      },
-      {
-        ""name"": ""photo.png"",
-        ""preview"": ""https://downloader.disk.yandex.ru/preview/..."",
-        ""created"": ""2014-04-21T14:57:13+04:00"",
-        ""modified"": ""2014-04-21T14:57:14+04:00"",
-        ""path"": ""disk:/foo/photo.png"",
-        ""md5"": ""4334dc6379c8f95ddf11b9508cfea271"",
-        ""type"": ""file"",
-        ""mime_type"": ""image/png"",
-        ""size"": 34567
-      }
-    ],
-    ""limit"": 20,
-    ""offset"": 0
-  },
-  ""name"": ""foo"",
-  ""created"": ""2014-04-21T14:54:42+04:00"",
-  ""custom_properties"": {""foo"":""1"", ""bar"":""2""},
-  ""public_url"": ""https://yadi.sk/d/2AEJCiNTZGiYX"",
-  ""modified"": ""2014-04-22T10:32:49+04:00"",
-  ""path"": ""disk:/foo"",
-  ""type"": ""dir""
-}
-");
+                result: """
+
+                        {
+                          "public_key": "HQsmHLoeyBlJf8Eu1jlmzuU+ZaLkjPkgcvmokRUCIo8=",
+                          "_embedded": {
+                            "sort": "",
+                            "path": "disk:/foo",
+                            "items": [
+                              {
+                                "path": "disk:/foo/bar",
+                                "type": "dir",
+                                "name": "bar",
+                                "modified": "2014-04-22T10:32:49+04:00",
+                                "created": "2014-04-22T10:32:49+04:00"
+                              },
+                              {
+                                "name": "photo.png",
+                                "preview": "https://downloader.disk.yandex.ru/preview/...",
+                                "created": "2014-04-21T14:57:13+04:00",
+                                "modified": "2014-04-21T14:57:14+04:00",
+                                "path": "disk:/foo/photo.png",
+                                "md5": "4334dc6379c8f95ddf11b9508cfea271",
+                                "type": "file",
+                                "mime_type": "image/png",
+                                "size": 34567
+                              }
+                            ],
+                            "limit": 20,
+                            "offset": 0
+                          },
+                          "name": "foo",
+                          "created": "2014-04-21T14:54:42+04:00",
+                          "custom_properties": {"foo":"1", "bar":"2"},
+                          "public_url": "https://yadi.sk/d/2AEJCiNTZGiYX",
+                          "modified": "2014-04-22T10:32:49+04:00",
+                          "path": "disk:/foo",
+                          "type": "dir"
+                        }
+
+                        """);
 
             var diskClient = CreateDiskApi(httpClientTest);
 
@@ -115,8 +117,8 @@ namespace YandexDisk.Client.Tests
             Assert.AreEqual("disk:/foo/bar", firstItem.Path);
             Assert.AreEqual(ResourceType.Dir, firstItem.Type);
             Assert.AreEqual("bar", firstItem.Name);
-            Assert.AreEqual(new DateTime(2014, 04, 22, 6, 32, 49), firstItem.Created);
-            Assert.AreEqual(new DateTime(2014, 04, 22, 6, 32, 49), firstItem.Modified);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 22, 10, 32, 49), TimeSpan.FromHours(4)), firstItem.Created);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 22, 10, 32, 49), TimeSpan.FromHours(4)), firstItem.Modified);
 
             Resource secondItem = result.Embedded.Items[1];
             Assert.NotNull(secondItem);
@@ -127,13 +129,13 @@ namespace YandexDisk.Client.Tests
             Assert.AreEqual("4334dc6379c8f95ddf11b9508cfea271", secondItem.Md5);
             Assert.AreEqual("image/png", secondItem.MimeType);
             Assert.AreEqual(34567, secondItem.Size);
-            Assert.AreEqual(new DateTime(2014, 04, 21, 10, 57, 13), secondItem.Created.ToUniversalTime());
-            Assert.AreEqual(new DateTime(2014, 04, 21, 10, 57, 14), secondItem.Modified.ToUniversalTime());
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 21, 14, 57, 13), TimeSpan.FromHours(4)), secondItem.Created);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 21, 14, 57, 14), TimeSpan.FromHours(4)), secondItem.Modified);
 
             Assert.AreEqual("foo", result.Name);
             //Assert.AreEqual("custom_properties", result.CustomProperties);
-            Assert.AreEqual(new DateTime(2014, 04, 21, 10, 54, 42), result.Created.ToUniversalTime());
-            Assert.AreEqual(new DateTime(2014, 04, 22, 6, 32, 49), result.Modified.ToUniversalTime());
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 21, 14, 54, 42), TimeSpan.FromHours(4)), result.Created);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 22, 10, 32, 49), TimeSpan.FromHours(4)), result.Modified);
             Assert.AreEqual("disk:/foo", result.Path);
             Assert.AreEqual(ResourceType.Dir, result.Type);
 
@@ -147,21 +149,23 @@ namespace YandexDisk.Client.Tests
                 methodName: "GET",
                 url: TestHttpClient.BaseUrl + Url.EscapePath("trash/resources?path=/foo/cat.png&limit=30&offset=50"),
                 httpStatusCode: HttpStatusCode.OK,
-                result: @"
-{
-  ""preview"": ""https://downloader.disk.yandex.ru/preview/..."",
-  ""name"": ""cat.png"",
-  ""created"": ""2014-07-16T13:07:45+04:00"",
-  ""custom_properties"": {""foo"":""1"", ""bar"":""2""},
-  ""origin_path"": ""disk:/foo/cat.png"",
-  ""modified"": ""2014-07-16T13:07:45+04:00"",
-  ""path"": ""trash:/cat.png"",
-  ""md5"": ""02bab05c02537e53dedd408261e0aadf"",
-  ""type"": ""file"",
-  ""mime_type"": ""image/png"",
-  ""size"": 903337
-},
-");
+                result: """
+
+                        {
+                          "preview": "https://downloader.disk.yandex.ru/preview/...",
+                          "name": "cat.png",
+                          "created": "2014-07-16T13:07:45+04:00",
+                          "custom_properties": {"foo":"1", "bar":"2"},
+                          "origin_path": "disk:/foo/cat.png",
+                          "modified": "2014-07-16T13:07:45+04:00",
+                          "path": "trash:/cat.png",
+                          "md5": "02bab05c02537e53dedd408261e0aadf",
+                          "type": "file",
+                          "mime_type": "image/png",
+                          "size": 903337
+                        }
+
+                        """);
 
             var diskClient = CreateDiskApi(httpClientTest);
 
@@ -182,8 +186,8 @@ namespace YandexDisk.Client.Tests
             Assert.AreEqual("02bab05c02537e53dedd408261e0aadf", result.Md5);
             Assert.AreEqual("image/png", result.MimeType);
             Assert.AreEqual(903337, result.Size);
-            Assert.AreEqual(new DateTime(2014, 07, 16, 9, 07, 45), result.Created);
-            Assert.AreEqual(new DateTime(2014, 07, 16, 9, 07, 45), result.Modified);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 07, 16, 13, 07, 45), TimeSpan.FromHours(4)),result.Created);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 07, 16, 13, 07, 45), TimeSpan.FromHours(4)),result.Modified);
         }
 
         [Test]
@@ -247,8 +251,8 @@ namespace YandexDisk.Client.Tests
             Assert.AreEqual("53f4dc6379c8f95ddf11b9508cfea271", firstItem.Md5);
             Assert.AreEqual("image/png", firstItem.MimeType);
             Assert.AreEqual(54321, firstItem.Size);
-            Assert.AreEqual(new DateTime(2014, 04, 22, 10, 57, 13), firstItem.Created);
-            Assert.AreEqual(new DateTime(2014, 04, 22, 10, 57, 14), firstItem.Modified);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 22, 14, 57, 13), TimeSpan.FromHours(4)), firstItem.Created);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 22, 14, 57, 14), TimeSpan.FromHours(4)), firstItem.Modified);
 
             var secondItem = result.Items[1];
             Assert.AreEqual("photo1.png", secondItem.Name);
@@ -258,8 +262,8 @@ namespace YandexDisk.Client.Tests
             Assert.AreEqual("4334dc6379c8f95ddf11b9508cfea271", secondItem.Md5);
             Assert.AreEqual("image/png", secondItem.MimeType);
             Assert.AreEqual(34567, secondItem.Size);
-            Assert.AreEqual(new DateTime(2014, 04, 21, 10, 57, 13), secondItem.Created);
-            Assert.AreEqual(new DateTime(2014, 04, 21, 10, 57, 14), secondItem.Modified);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 21, 14, 57, 13), TimeSpan.FromHours(4)), secondItem.Created);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 21, 14, 57, 14), TimeSpan.FromHours(4)), secondItem.Modified);
         }
 
         [Test]
@@ -295,7 +299,7 @@ namespace YandexDisk.Client.Tests
         ""size"": 34567
       }
     ],
-    ""limit"": 20,
+    ""limit"": 20
   }
 ");
 
@@ -320,8 +324,8 @@ namespace YandexDisk.Client.Tests
             Assert.AreEqual("53f4dc6379c8f95ddf11b9508cfea271", firstItem.Md5);
             Assert.AreEqual("image/png", firstItem.MimeType);
             Assert.AreEqual(54321, firstItem.Size);
-            Assert.AreEqual(new DateTime(2014, 04, 22, 10, 57, 13), firstItem.Created);
-            Assert.AreEqual(new DateTime(2014, 04, 22, 10, 57, 14), firstItem.Modified);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 22, 14, 57, 13), TimeSpan.FromHours(4)), firstItem.Created);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 22, 14, 57, 14), TimeSpan.FromHours(4)),firstItem.Modified);
 
             var secondItem = result.Items[1];
             Assert.AreEqual("photo1.png", secondItem.Name);
@@ -331,8 +335,8 @@ namespace YandexDisk.Client.Tests
             Assert.AreEqual("4334dc6379c8f95ddf11b9508cfea271", secondItem.Md5);
             Assert.AreEqual("image/png", secondItem.MimeType);
             Assert.AreEqual(34567, secondItem.Size);
-            Assert.AreEqual(new DateTime(2014, 04, 21, 10, 57, 13), secondItem.Created);
-            Assert.AreEqual(new DateTime(2014, 04, 21, 10, 57, 14), secondItem.Modified);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 21, 14, 57, 13),TimeSpan.FromHours(4)), secondItem.Created);
+            Assert.AreEqual(new DateTimeOffset(new DateTime(2014, 04, 21, 14, 57, 14),TimeSpan.FromHours(4)), secondItem.Modified);
         }
 
 
@@ -449,8 +453,6 @@ namespace YandexDisk.Client.Tests
 
         private static DiskHttpApi CreateDiskApi(TestHttpClient httpClientTest)
         {
-            return new DiskHttpApi(TestHttpClient.Token);
-            
             return new DiskHttpApi(TestHttpClient.BaseUrl,
                 TestHttpClient.ApiKey,
                 logSaver: null,

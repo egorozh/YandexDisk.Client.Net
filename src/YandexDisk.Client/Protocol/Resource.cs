@@ -63,6 +63,7 @@ public class Resource : ProtocolObjectResponse
     /// Тип ресурса:
     /// </summary>
     [JsonPropertyName("type")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public ResourceType Type { get; set; }
 
     /// <summary>
@@ -81,13 +82,13 @@ public class Resource : ProtocolObjectResponse
     /// Дата и время создания ресурса, в формате ISO 8601.
     /// </summary>
     [JsonPropertyName("created")]
-    public DateTime Created { get; set; }
+    public DateTimeOffset Created { get; set; }
 
     /// <summary>
     /// Дата и время изменения ресурса, в формате ISO 8601.
     /// </summary>
     [JsonPropertyName("modified")]
-    public DateTime Modified { get; set; }
+    public DateTimeOffset Modified { get; set; }
 
     /// <summary>
     /// Объект со всеми атрибутами, заданными с помощью запроса Добавление метаинформации для ресурса. 
@@ -109,18 +110,17 @@ public class Resource : ProtocolObjectResponse
 /// </summary>
 public enum ResourceType : byte
 {
-    /// <summary>
-    /// Папка
-    /// </summary>
+    /// <summary>Папка</summary>
     Dir,
 
-    /// <summary>
-    /// Файл
-    /// </summary>
+    /// <summary>Файл</summary>
     File
 }
 
 
 [JsonSerializable(typeof(Resource))]
-[JsonSourceGenerationOptions(UseStringEnumConverter = true, PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]
+[JsonSourceGenerationOptions(
+    UseStringEnumConverter = true, 
+    PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower,
+    AllowTrailingCommas = true)]
 internal partial class ResourceJsonContext : JsonSerializerContext;
