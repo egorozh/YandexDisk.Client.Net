@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Specialized;
-using System.Linq;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
@@ -25,7 +24,7 @@ internal abstract class DiskClientBase(ApiContext apiContext)
     private readonly Uri _baseUrl = apiContext.BaseUrl ?? throw new ArgumentNullException(nameof(apiContext.BaseUrl));
     
 
-    protected Task<T> GetAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest, CancellationToken cancellationToken)
+    protected Task<T> GetAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, Dictionary<string, string>? queryRequest, CancellationToken cancellationToken)
         where T : new()
     {
         ArgumentNullException.ThrowIfNull(relativeUrl);
@@ -38,28 +37,28 @@ internal abstract class DiskClientBase(ApiContext apiContext)
     }
 
 
-    protected Task<T> PostAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest, CancellationToken cancellationToken) 
+    protected Task<T> PostAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, Dictionary<string, string>? queryRequest, CancellationToken cancellationToken) 
         where T : new()
     {
         return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Post, cancellationToken);
     }
 
 
-    protected Task<T> PutAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest, CancellationToken cancellationToken) 
+    protected Task<T> PutAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, Dictionary<string, string>? queryRequest, CancellationToken cancellationToken) 
         where T : new()
     {
         return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Put, cancellationToken);
     }
 
 
-    protected Task<T> DeleteAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest, CancellationToken cancellationToken)
+    protected Task<T> DeleteAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, Dictionary<string, string>? queryRequest, CancellationToken cancellationToken)
         where T : new()
     {
         return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Delete, cancellationToken);
     }
 
 
-    protected Task<T> PatchAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest,
+    protected Task<T> PatchAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, Dictionary<string, string>? queryRequest,
         string? requestJsonContent, CancellationToken cancellationToken) where T : new()
     {
         return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent, new HttpMethod("PATCH"), cancellationToken);
@@ -124,7 +123,7 @@ internal abstract class DiskClientBase(ApiContext apiContext)
     private ILogger GetLogger() => LoggerFactory.GetLogger(_logSaver);
 
 
-    private Uri GetUrl(string relativeUrl, NameValueCollection? queryRequest = null)
+    private Uri GetUrl(string relativeUrl, Dictionary<string, string>? queryRequest = null)
     {
         var uriBuilder = new UriBuilder(_baseUrl);
         uriBuilder.Path += relativeUrl ?? throw new ArgumentNullException(nameof(relativeUrl));
@@ -138,21 +137,23 @@ internal abstract class DiskClientBase(ApiContext apiContext)
     }
     
     
-    private static string ToQueryString(NameValueCollection nvc)
+    private static string ToQueryString(Dictionary<string, string> queries)
     {
-        string[] array = (
-            from key in nvc.AllKeys
-            from value in nvc.GetValues(key)
-            select string.Format(
-                "{0}={1}",
-                HttpUtility.UrlEncode(key),
-                HttpUtility.UrlEncode(value))
-        ).ToArray();
-        return "?" + string.Join('&', array);
+        StringBuilder builder = new("?");
+
+        foreach (var query in queries)
+        {
+            builder.Append($"{HttpUtility.UrlEncode(query.Key)}={HttpUtility.UrlEncode(query.Value)}");
+            builder.Append('&');
+        }
+
+        builder.Remove(builder.Length - 1, 1);
+        
+        return builder.ToString();
     }
     
     
-    private async Task<T> RequestAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest,
+    private async Task<T> RequestAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, Dictionary<string, string>? queryRequest,
         string? requestJsonContent, HttpMethod httpMethod, CancellationToken cancellationToken) where T : new() 
     {
         Uri url = GetUrl(relativeUrl, queryRequest);

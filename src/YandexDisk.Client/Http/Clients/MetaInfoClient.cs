@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -19,7 +18,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<Resource> GetInfoAsync(ResourceRequest request, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 4)
+        Dictionary<string, string> query = new(capacity: 4)
         {
             { "path", request.Path }
         };
@@ -38,7 +37,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<Resource> GetTrashInfoAsync(ResourceRequest request, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 4)
+        Dictionary<string, string> query = new(capacity: 4)
         {
             { "path", request.Path }
         };
@@ -57,7 +56,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<FilesResourceList> GetFilesInfoAsync(FilesResourceRequest request, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 3);
+        Dictionary<string, string> query = new(capacity: 3);
         
         if (request.MediaType is not null && request.MediaType.Length > 0)
             query.Add("media_type", MediaTypesToString(request.MediaType));
@@ -73,7 +72,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<LastUploadedResourceList> GetLastUploadedInfoAsync(LastUploadedResourceRequest request, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 2);
+        Dictionary<string, string> query = new(capacity: 2);
         
         if (request.MediaType is not null && request.MediaType.Length > 0)
             query.Add("media_type", MediaTypesToString(request.MediaType));
@@ -91,7 +90,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
             new CustomPropertiesDto { CustomProperties = customProperties },
             CustomPropertiesJsonContext.Default.CustomPropertiesDto);
 
-        NameValueCollection query = new(capacity: 1)
+        Dictionary<string, string> query = new(capacity: 1)
         {
             { "path", $"{path}" }
         };
@@ -101,7 +100,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<Link> PublishFolderAsync(string path, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 1)
+        Dictionary<string, string> query = new(capacity: 1)
         {
             { "path", $"{path}" }
         };
@@ -111,7 +110,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<Link> UnpublishFolderAsync(string path, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 1)
+        Dictionary<string, string> query = new(capacity: 1)
         {
             { "path", $"{path}" }
         };

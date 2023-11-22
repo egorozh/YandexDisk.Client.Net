@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +12,7 @@ internal class CommandsClient(ApiContext apiContext) : DiskClientBase(apiContext
 {
     public Task<Link> CreateDictionaryAsync(string path, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 1)
+        Dictionary<string, string> query = new(capacity: 1)
         {
             { "path", path }
         };
@@ -22,7 +22,7 @@ internal class CommandsClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<Link> CopyAsync(CopyFileRequest request, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 3)
+        Dictionary<string, string> query = new(capacity: 3)
         {
             { "from", request.From },
             { "path", request.Path },
@@ -34,7 +34,7 @@ internal class CommandsClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<Link> MoveAsync(MoveFileRequest request, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 3)
+        Dictionary<string, string> query = new(capacity: 3)
         {
             { "from", request.From },
             { "path", request.Path },
@@ -46,7 +46,7 @@ internal class CommandsClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<Link> DeleteAsync(DeleteFileRequest request, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 2)
+        Dictionary<string, string> query = new(capacity: 2)
         {
             { "path", request.Path },
             { "permanently", request.Permanently.ToString().ToLower() }
@@ -57,7 +57,7 @@ internal class CommandsClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<Link> EmptyTrashAsync(string path, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 1)
+        Dictionary<string, string> query = new(capacity: 1)
         {
             { "path", path }
         };
@@ -67,7 +67,7 @@ internal class CommandsClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<Link> RestoreFromTrashAsync(RestoreFromTrashRequest request, CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 3)
+        Dictionary<string, string> query = new(capacity: 3)
         {
             { "path", request.Path },
             { "overwrite", request.Overwrite.ToString().ToLower() }
