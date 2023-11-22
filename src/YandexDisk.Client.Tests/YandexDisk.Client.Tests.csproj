@@ -2,12 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>
-      net461;
-      net47;
-      net48;
-      net6;
-    </TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <StartupObject>YandexDisk.Client.Tests.Program</StartupObject>
