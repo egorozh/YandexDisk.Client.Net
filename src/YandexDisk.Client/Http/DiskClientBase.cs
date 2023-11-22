@@ -4,7 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -22,82 +24,73 @@ internal abstract class DiskClientBase(ApiContext apiContext)
     private readonly ILogSaver? _logSaver = apiContext.LogSaver;
     private readonly Uri _baseUrl = apiContext.BaseUrl ?? throw new ArgumentNullException(nameof(apiContext.BaseUrl));
     
-    
-    protected async Task<HttpObject> ReadResponse(HttpObjectType responseType, HttpResponseMessage responseMessage,
-        CancellationToken cancellationToken)
+
+    protected Task<T> GetAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest, CancellationToken cancellationToken)
+        where T : new()
     {
-        ArgumentNullException.ThrowIfNull(responseMessage);
-
-        if (responseMessage.StatusCode == HttpStatusCode.NoContent)
-            return HttpObject.FromNull(responseMessage.StatusCode);
-
-        if (responseType == HttpObjectType.String)
-            return HttpObject.FromString(await responseMessage.Content.ReadAsStringAsync(cancellationToken)
-                .ConfigureAwait(false), responseMessage.StatusCode);
-        if (responseType == HttpObjectType.ByteArray)
-            return HttpObject.FromByteArray(await responseMessage.Content.ReadAsByteArrayAsync(cancellationToken)
-                .ConfigureAwait(false), responseMessage.StatusCode);
-        if (responseType == HttpObjectType.Stream)
-            return HttpObject.FromStream(await responseMessage.Content.ReadAsStreamAsync(cancellationToken)
-                .ConfigureAwait(false), responseMessage.StatusCode);
-        if (responseType == HttpObjectType.Json)
-            return HttpObject.FromJson(await responseMessage.Content.ReadAsStringAsync(cancellationToken)
-                .ConfigureAwait(false), responseMessage.StatusCode);
-
-        throw new NotSupportedException(
-            $"{nameof(DiskClientBase)}.{nameof(ReadResponse)} - responseType type: {responseType.GetName()} not supported");
-    }
-
-
-    protected Task<HttpObject> GetAsync(HttpObjectType responseType, string relativeUrl, NameValueCollection? queryRequest, CancellationToken cancellationToken)
-    {
-        if (relativeUrl == null)
-        {
-            throw new ArgumentNullException(nameof(relativeUrl));
-        }
-
+        ArgumentNullException.ThrowIfNull(relativeUrl);
+        
         Uri url = GetUrl(relativeUrl, queryRequest);
 
         var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
-        return SendAsync(responseType, requestMessage, cancellationToken);
+        return SendAsync(jsonTypeInfo, requestMessage, cancellationToken);
     }
 
 
-    protected Task<HttpObject> PostAsync(HttpObjectType responseType, string relativeUrl, NameValueCollection? queryRequest,
-        HttpObject request,
-        CancellationToken cancellationToken)
+    protected Task<T> PostAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest, CancellationToken cancellationToken) 
+        where T : new()
     {
-        return RequestAsync(responseType, relativeUrl, queryRequest, request, HttpMethod.Post, cancellationToken);
+        return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Post, cancellationToken);
     }
 
 
-    protected Task<HttpObject> PutAsync(HttpObjectType responseType, string relativeUrl, NameValueCollection? queryRequest,
-        HttpObject request,
-        CancellationToken cancellationToken)
+    protected Task<T> PutAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest, CancellationToken cancellationToken) 
+        where T : new()
     {
-        return RequestAsync(responseType, relativeUrl, queryRequest, request, HttpMethod.Put, cancellationToken);
+        return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Put, cancellationToken);
     }
 
 
-    protected Task<HttpObject> DeleteAsync(HttpObjectType responseType, string relativeUrl,
-        NameValueCollection? queryRequest, HttpObject request,
-        CancellationToken cancellationToken)
+    protected Task<T> DeleteAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest, CancellationToken cancellationToken)
+        where T : new()
     {
-        return RequestAsync(responseType, relativeUrl, queryRequest, request, HttpMethod.Delete, cancellationToken);
+        return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Delete, cancellationToken);
     }
 
 
-    protected Task<HttpObject> PatchAsync(HttpObjectType responseType, string relativeUrl, NameValueCollection? queryRequest,
-        HttpObject request,
-        CancellationToken cancellationToken)
+    protected Task<T> PatchAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest,
+        string? requestJsonContent, CancellationToken cancellationToken) where T : new()
     {
-        return RequestAsync(responseType, relativeUrl, queryRequest, request, new HttpMethod("PATCH"), cancellationToken);
+        return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent, new HttpMethod("PATCH"), cancellationToken);
     }
 
+    
+    protected async Task<T> SendAsync<T>(JsonTypeInfo<T> jsonTypeInfo, HttpRequestMessage request, CancellationToken cancellationToken)
+        where T : new()
+    {
+        ArgumentNullException.ThrowIfNull(request);
 
-    protected async Task<HttpResponseMessage> SendAsyncImpl(HttpRequestMessage request,
-        CancellationToken cancellationToken)
+        HttpResponseMessage responseMessage = await SendAsyncImpl(request, cancellationToken).ConfigureAwait(false);
+        
+        string? json = responseMessage.StatusCode != HttpStatusCode.NoContent
+            ? await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false)
+            : null;
+        
+        var result = DeserializeResponse(json, jsonTypeInfo);
+        
+        //If response is ProtocolObjectResponse,
+        //add HttpStatusCode to response
+        if (result is ProtocolObjectResponse protocolObject)
+        {
+            protocolObject.HttpStatusCode = responseMessage.StatusCode;
+        }
+
+        return result;
+    }
+    
+    
+    protected async Task<HttpResponseMessage> SendAsyncImpl(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -126,6 +119,7 @@ internal abstract class DiskClientBase(ApiContext apiContext)
             }
         }
     }
+    
 
     private ILogger GetLogger() => LoggerFactory.GetLogger(_logSaver);
 
@@ -143,9 +137,10 @@ internal abstract class DiskClientBase(ApiContext apiContext)
         return uriBuilder.Uri;
     }
     
+    
     private static string ToQueryString(NameValueCollection nvc)
     {
-        var array = (
+        string[] array = (
             from key in nvc.AllKeys
             from value in nvc.GetValues(key)
             select string.Format(
@@ -155,31 +150,20 @@ internal abstract class DiskClientBase(ApiContext apiContext)
         ).ToArray();
         return "?" + string.Join('&', array);
     }
-
-
-    private async Task<HttpObject> SendAsync(HttpObjectType responseType, HttpRequestMessage request,
-        CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(request);
-
-        HttpResponseMessage responseMessage = await SendAsyncImpl(request, cancellationToken).ConfigureAwait(false);
-
-        var response = await ReadResponse(responseType, responseMessage, cancellationToken).ConfigureAwait(false);
-
-        return response;
-    }
-
-
-    private Task<HttpObject> RequestAsync(HttpObjectType responseType, string relativeUrl, NameValueCollection? queryRequest,
-        in HttpObject request, HttpMethod httpMethod, CancellationToken cancellationToken)
+    
+    
+    private async Task<T> RequestAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, NameValueCollection? queryRequest,
+        string? requestJsonContent, HttpMethod httpMethod, CancellationToken cancellationToken) where T : new() 
     {
         Uri url = GetUrl(relativeUrl, queryRequest);
 
-        HttpContent? content = HttpObject.ToHttpContent(request);
-
+        HttpContent? content = !string.IsNullOrWhiteSpace(requestJsonContent) 
+            ? new StringContent(requestJsonContent, Encoding.UTF8, "application/json")
+            : null;
+        
         var requestMessage = new HttpRequestMessage(httpMethod, url) { Content = content };
 
-        return SendAsync(responseType, requestMessage, cancellationToken);
+        return await SendAsync(jsonTypeInfo, requestMessage, cancellationToken);
     }
 
 
@@ -213,6 +197,36 @@ internal abstract class DiskClientBase(ApiContext apiContext)
         catch (SerializationException) //unexpected data in content
         {
             return null;
+        }
+    }
+    
+    
+    private static T DeserializeResponse<T>(string? json, JsonTypeInfo<T> typeInfo) where T : new()
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            throw new Exception($"{nameof(DiskClientBase)}.{nameof(DeserializeResponse)} - response is null");
+        
+        try
+        {
+            T result;
+            
+            //If response body is null but ProtocolObjectResponse was requested, 
+            //create empty object
+            if (string.IsNullOrWhiteSpace(json) && typeof(ProtocolObjectResponse).IsAssignableFrom(typeof(T)))
+            {
+                result = new T();
+            }
+            else
+            {
+                result = JsonSerializer.Deserialize(json, typeInfo)
+                         ?? throw new Exception($"{nameof(DiskClientBase)}.{nameof(DeserializeResponse)} - response is null");;
+            }
+            
+            return result;
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"{nameof(DiskClientBase)}.{nameof(DeserializeResponse)} - {e}");
         }
     }
 }

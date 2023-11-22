@@ -11,8 +11,7 @@ namespace YandexDisk.Client.Http.Clients;
 
 internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), IFilesClient
 {
-    public async Task<Link> GetUploadLinkAsync(string path, bool overwrite,
-        CancellationToken cancellationToken = default)
+    public Task<Link> GetUploadLinkAsync(string path, bool overwrite, CancellationToken cancellationToken = default)
     {
         NameValueCollection query = new(capacity: 2)
         {
@@ -20,9 +19,7 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
             { "overwrite", overwrite.ToString().ToLower() }
         };
 
-        var response = await GetAsync(HttpObjectType.Json, "resources/upload", query, cancellationToken);
-
-        return response.DeserializeResponse(LinkJsonContext.Default.Link);
+        return GetAsync(LinkJsonContext.Default.Link, "resources/upload", query, cancellationToken);
     }
 
     public Task UploadAsync(Link link, Stream file, CancellationToken cancellationToken = default)
@@ -38,16 +35,14 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
         return SendAsyncImpl(requestMessage, cancellationToken);
     }
 
-    public async Task<Link> GetDownloadLinkAsync(string path, CancellationToken cancellationToken)
+    public Task<Link> GetDownloadLinkAsync(string path, CancellationToken cancellationToken)
     {
         NameValueCollection query = new(capacity: 1)
         {
             { "path", path }
         };
 
-        var response = await GetAsync(HttpObjectType.Json, "resources/download", query, cancellationToken);
-
-        return response.DeserializeResponse(LinkJsonContext.Default.Link);
+        return GetAsync(LinkJsonContext.Default.Link, "resources/download", query, cancellationToken);
     }
 
     public async Task<Stream> DownloadAsync(Link link, CancellationToken cancellationToken = default)
@@ -58,8 +53,7 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
 
         var requestMessage = new HttpRequestMessage(method, url);
 
-        HttpResponseMessage responseMessage =
-            await SendAsyncImpl(requestMessage, cancellationToken).ConfigureAwait(false);
+        HttpResponseMessage responseMessage = await SendAsyncImpl(requestMessage, cancellationToken).ConfigureAwait(false);
 
         return await responseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
     }

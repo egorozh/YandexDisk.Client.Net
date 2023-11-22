@@ -12,14 +12,12 @@ namespace YandexDisk.Client.Http.Clients;
 
 internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext), IMetaInfoClient
 {
-    public async Task<Disk> GetDiskInfoAsync(CancellationToken cancellationToken = default)
+    public Task<Disk> GetDiskInfoAsync(CancellationToken cancellationToken = default)
     {
-        var response = await GetAsync(HttpObjectType.Json, "", null, cancellationToken);
-
-        return response.DeserializeResponse(DiskJsonContext.Default.Disk);
+        return GetAsync(DiskJsonContext.Default.Disk, "", null, cancellationToken);
     }
 
-    public async Task<Resource> GetInfoAsync(ResourceRequest request, CancellationToken cancellationToken = default)
+    public Task<Resource> GetInfoAsync(ResourceRequest request, CancellationToken cancellationToken = default)
     {
         NameValueCollection query = new(capacity: 4)
         {
@@ -35,13 +33,10 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
         if (!string.IsNullOrWhiteSpace(request.Sort))
             query.Add("sort", request.Sort);
 
-        var response = await GetAsync(HttpObjectType.Json, "resources", query, cancellationToken);
-
-        return response.DeserializeResponse(ResourceJsonContext.Default.Resource);
+        return GetAsync(ResourceJsonContext.Default.Resource, "resources", query, cancellationToken);
     }
 
-    public async Task<Resource> GetTrashInfoAsync(ResourceRequest request,
-        CancellationToken cancellationToken = default)
+    public Task<Resource> GetTrashInfoAsync(ResourceRequest request, CancellationToken cancellationToken = default)
     {
         NameValueCollection query = new(capacity: 4)
         {
@@ -57,13 +52,10 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
         if (!string.IsNullOrWhiteSpace(request.Sort))
             query.Add("sort", request.Sort);
 
-        var response = await GetAsync(HttpObjectType.Json, "trash/resources", query, cancellationToken);
-
-        return response.DeserializeResponse(ResourceJsonContext.Default.Resource);
+        return GetAsync(ResourceJsonContext.Default.Resource, "trash/resources", query, cancellationToken);
     }
 
-    public async Task<FilesResourceList> GetFilesInfoAsync(FilesResourceRequest request,
-        CancellationToken cancellationToken = default)
+    public Task<FilesResourceList> GetFilesInfoAsync(FilesResourceRequest request, CancellationToken cancellationToken = default)
     {
         NameValueCollection query = new(capacity: 3);
         
@@ -76,13 +68,10 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
         if (request.Offset.HasValue)
             query.Add("offset", request.Offset.Value.ToString());
 
-        var response = await GetAsync(HttpObjectType.Json, "resources/files", query, cancellationToken);
-
-        return response.DeserializeResponse(FilesResourceListJsonContext.Default.FilesResourceList);
+        return GetAsync(FilesResourceListJsonContext.Default.FilesResourceList, "resources/files", query, cancellationToken);
     }
 
-    public async Task<LastUploadedResourceList> GetLastUploadedInfoAsync(LastUploadedResourceRequest request,
-        CancellationToken cancellationToken = default)
+    public Task<LastUploadedResourceList> GetLastUploadedInfoAsync(LastUploadedResourceRequest request, CancellationToken cancellationToken = default)
     {
         NameValueCollection query = new(capacity: 2);
         
@@ -92,60 +81,46 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
         if (request.Limit.HasValue)
             query.Add("limit", request.Limit.Value.ToString());
 
-        var response = await GetAsync(HttpObjectType.Json, "resources/last-uploaded", query, cancellationToken);
-
-        return response.DeserializeResponse(LastUploadedResourceListJsonContext.Default.LastUploadedResourceList);
+        return GetAsync(LastUploadedResourceListJsonContext.Default.LastUploadedResourceList, "resources/last-uploaded", query, cancellationToken);
     }
 
-    public async Task<Resource> AppendCustomProperties(string path, IDictionary<string, string> customProperties,
-        CancellationToken cancellationToken = default)
+    public Task<Resource> AppendCustomProperties(string path, IDictionary<string, string> customProperties, CancellationToken cancellationToken = default)
     {
         // new { customProperties }
-        var request = HttpObject.FromJson(JsonSerializer.Serialize(
+        string request = JsonSerializer.Serialize(
             new CustomPropertiesDto { CustomProperties = customProperties },
-            CustomPropertiesJsonContext.Default.CustomPropertiesDto));
+            CustomPropertiesJsonContext.Default.CustomPropertiesDto);
 
         NameValueCollection query = new(capacity: 1)
         {
             { "path", $"{path}" }
         };
 
-        var response = await PatchAsync(HttpObjectType.Json, "resources", query, request, cancellationToken);
-
-        return response.DeserializeResponse(ResourceJsonContext.Default.Resource);
+        return PatchAsync(ResourceJsonContext.Default.Resource, "resources", query, request, cancellationToken);
     }
 
-    public async Task<Link> PublishFolderAsync(string path, CancellationToken cancellationToken = default)
+    public Task<Link> PublishFolderAsync(string path, CancellationToken cancellationToken = default)
     {
         NameValueCollection query = new(capacity: 1)
         {
             { "path", $"{path}" }
         };
 
-        var response = await PutAsync(HttpObjectType.Json, "resources/publish", query, HttpObject.FromNull(),
-            cancellationToken);
-
-        return response.DeserializeResponse(LinkJsonContext.Default.Link);
+        return PutAsync(LinkJsonContext.Default.Link, "resources/publish", query, cancellationToken);
     }
 
-    public async Task<Link> UnpublishFolderAsync(string path, CancellationToken cancellationToken = default)
+    public Task<Link> UnpublishFolderAsync(string path, CancellationToken cancellationToken = default)
     {
         NameValueCollection query = new(capacity: 1)
         {
             { "path", $"{path}" }
         };
 
-        var response = await PutAsync(HttpObjectType.Json, "resources/unpublish", query, HttpObject.FromNull(),
-            cancellationToken);
-
-        return response.DeserializeResponse(LinkJsonContext.Default.Link);
+        return PutAsync(LinkJsonContext.Default.Link, "resources/unpublish", query, cancellationToken);
     }
 
 
-    private static string MediaTypesToString(MediaType[] mediaTypes)
-    {
-        return string.Join(",", mediaTypes.Select(t => t.GetName().ToLower()));
-    }
+    private static string MediaTypesToString(MediaType[] mediaTypes) => string.Join(",", mediaTypes.Select(t => t.GetName().ToLower()));
 }
 
 internal class CustomPropertiesDto
