@@ -18,17 +18,20 @@ internal static class SerializeExtensions
 
         try
         {
-            var result = JsonSerializer.Deserialize(json, typeInfo)
-                   ?? throw new Exception($"{nameof(SerializeExtensions)}.{nameof(DeserializeResponse)} - response is null");;
+            T result;
             
             //If response body is null but ProtocolObjectResponse was requested, 
             //create empty object
-            
-            if (typeof(ProtocolObjectResponse).IsAssignableFrom(typeof(T)))
+            if (string.IsNullOrWhiteSpace(json) && typeof(ProtocolObjectResponse).IsAssignableFrom(typeof(T)))
             {
                 result = new T();
             }
-
+            else
+            {
+                result = JsonSerializer.Deserialize(json, typeInfo)
+                         ?? throw new Exception($"{nameof(SerializeExtensions)}.{nameof(DeserializeResponse)} - response is null");;
+            }
+            
             //If response is ProtocolObjectResponse,
             //add HttpStatusCode to response
             if (result is ProtocolObjectResponse protocolObject)

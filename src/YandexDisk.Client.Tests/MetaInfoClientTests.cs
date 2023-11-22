@@ -31,12 +31,9 @@ namespace YandexDisk.Client.Tests
 }
 ");
 
-            var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-                                             TestHttpClient.ApiKey,
-                                             logSaver: null,
-                                             httpClient: httpClientTest);
+            var diskClient = CreateDiskApi(httpClientTest);
 
-            Disk result = await diskClient.MetaInfo.GetDiskInfoAsync(CancellationToken.None).ConfigureAwait(false);
+            Disk result = await diskClient.MetaInfo.GetDiskInfoAsync().ConfigureAwait(false);
 
             Assert.NotNull(result);
             Assert.AreEqual(319975063552L, result.TotalSpace);
@@ -94,10 +91,7 @@ namespace YandexDisk.Client.Tests
 }
 ");
 
-            var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-                                             TestHttpClient.ApiKey,
-                                             logSaver: null,
-                                             httpClient: httpClientTest);
+            var diskClient = CreateDiskApi(httpClientTest);
 
             Resource result = await diskClient.MetaInfo.GetInfoAsync(new ResourceRequest
             {
@@ -169,10 +163,7 @@ namespace YandexDisk.Client.Tests
 },
 ");
 
-            var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-                                             TestHttpClient.ApiKey,
-                                             logSaver: null,
-                                             httpClient: httpClientTest);
+            var diskClient = CreateDiskApi(httpClientTest);
 
             Resource result = await diskClient.MetaInfo.GetTrashInfoAsync(new ResourceRequest
             {
@@ -233,10 +224,7 @@ namespace YandexDisk.Client.Tests
 }
 ");
 
-            var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-                                             TestHttpClient.ApiKey,
-                                             logSaver: null,
-                                             httpClient: httpClientTest);
+            var diskClient = CreateDiskApi(httpClientTest);
 
             FilesResourceList result = await diskClient.MetaInfo.GetFilesInfoAsync(new FilesResourceRequest
             {
@@ -311,10 +299,7 @@ namespace YandexDisk.Client.Tests
   }
 ");
 
-            var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-                                             TestHttpClient.ApiKey,
-                                             logSaver: null,
-                                             httpClient: httpClientTest);
+            var diskClient = CreateDiskApi(httpClientTest);
 
             LastUploadedResourceList result = await diskClient.MetaInfo.GetLastUploadedInfoAsync(new LastUploadedResourceRequest
             {
@@ -398,10 +383,7 @@ namespace YandexDisk.Client.Tests
 }
 ");
 
-            var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-                                             TestHttpClient.ApiKey,
-                                             logSaver: null,
-                                             httpClient: httpClientTest);
+            var diskClient = CreateDiskApi(httpClientTest);
 
             Resource result = await diskClient.MetaInfo.AppendCustomProperties("/foo", new Dictionary<string, string>  {
                 { "foo", "1" },
@@ -429,10 +411,7 @@ namespace YandexDisk.Client.Tests
 }
 ");
 
-            var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-                                             TestHttpClient.ApiKey,
-                                             logSaver: null,
-                                             httpClient: httpClientTest);
+            var diskClient = CreateDiskApi(httpClientTest);
 
             Link result = await diskClient.MetaInfo.PublishFolderAsync("/foo", cancellationToken : CancellationToken.None);
 
@@ -457,10 +436,7 @@ namespace YandexDisk.Client.Tests
 }
 ");
 
-            var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-                                             TestHttpClient.ApiKey,
-                                             logSaver: null,
-                                             httpClient: httpClientTest);
+            var diskClient = CreateDiskApi(httpClientTest);
 
             Link result = await diskClient.MetaInfo.UnpublishFolderAsync("/foo", cancellationToken: CancellationToken.None);
 
@@ -468,6 +444,17 @@ namespace YandexDisk.Client.Tests
             Assert.AreEqual("https://cloud-api.yandex.net/v1/disk/resources?path=disk%3A%2Fbar%2Fphoto.png", result.Href);
             Assert.AreEqual("GET", result.Method);
             Assert.AreEqual(false, result.Templated);
+        }
+
+
+        private static DiskHttpApi CreateDiskApi(TestHttpClient httpClientTest)
+        {
+            return new DiskHttpApi(TestHttpClient.Token);
+            
+            return new DiskHttpApi(TestHttpClient.BaseUrl,
+                TestHttpClient.ApiKey,
+                logSaver: null,
+                httpClient: httpClientTest);
         }
     }
 }

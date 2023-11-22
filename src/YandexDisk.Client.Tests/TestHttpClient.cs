@@ -18,7 +18,8 @@ namespace YandexDisk.Client.Tests
 
         public static readonly string BaseUrl = "http://ya.ru/api/";
         public static readonly string ApiKey = "test-api-key";
-
+        public static readonly string Token = "test-token";
+        
         public TestHttpClient(string methodName,
                               string url,
                               string request = null,
