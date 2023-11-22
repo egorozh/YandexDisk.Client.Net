@@ -11,13 +11,13 @@ public class CopyFileRequest
     /// Путь к копируемому ресурсу. Например, %2Ffoo%2Fphoto.png.
     /// </summary>
     [JsonPropertyName("from")]
-    public string From { get; set; }
+    public required string From { get; init; }
 
     /// <summary>
     /// Путь к создаваемой копии ресурса. Например, %2Fbar%2Fphoto.png.
     /// </summary>
     [JsonPropertyName("path")]
-    public string Path { get; set; }
+    public required string Path { get; init; }
 
     /// <summary>
     /// Признак перезаписи. Учитывается, если ресурс копируется в папку, в которой уже есть ресурс с таким именем.

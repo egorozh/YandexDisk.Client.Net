@@ -17,14 +17,14 @@ public class ResourceRequest
     /// Для сортировки в обратном порядке добавьте дефис к значению параметра, например: sort=-name
     /// </summary>
     [JsonPropertyName("sort")]
-    public string Sort { get; set; }
+    public string? Sort { get; set; }
 
     /// <summary>
     /// Путь к нужному ресурсу относительно корневого каталога Диска. Путь к ресурсу в Корзине следует указывать относительно корневого каталога Корзины.
     /// Путь в значении параметра следует кодировать в URL-формате.
     /// </summary>
     [JsonPropertyName("path")]
-    public string Path { get; set; }
+    public required string Path { get; init; }
 
     /// <summary>
     /// Количество ресурсов, вложенных в папку, описание которых следует вернуть в ответе (например, для постраничного вывода).

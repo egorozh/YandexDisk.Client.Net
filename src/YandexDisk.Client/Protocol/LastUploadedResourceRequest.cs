@@ -12,7 +12,7 @@ public class LastUploadedResourceRequest
     /// </summary>
     /// <see>https://tech.yandex.ru/disk/api/reference/all-files-docpage/</see>
     [JsonPropertyName("media_type")]
-    public MediaType[] MediaType { get; set; }
+    public MediaType[]? MediaType { get; set; }
 
     /// <summary>
     /// Количество ресурсов, вложенных в папку, описание которых следует вернуть в ответе (например, для постраничного вывода).

@@ -12,7 +12,7 @@ public class DeleteFileRequest
     /// Путь к новому положению ресурса. Например, %2Fbar%2Fphoto.png.
     /// </summary>
     [JsonPropertyName("path")]
-    public string Path { get; set; }
+    public required string Path { get; init; }
 
     /// <summary>
     /// Признак безвозвратного удаления. Поддерживаемые значения:

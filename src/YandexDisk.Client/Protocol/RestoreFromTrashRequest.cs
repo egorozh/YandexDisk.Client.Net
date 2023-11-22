@@ -11,13 +11,13 @@ public class RestoreFromTrashRequest
     /// Путь к создаваемой копии ресурса. Например, %2Fbar%2Fphoto.png.
     /// </summary>
     [JsonPropertyName("path")]
-    public string Path { get; set; }
+    public required string Path { get; init; }
 
     /// <summary>
     /// Новое имя восстанавливаемого ресурса. Например, selfie.png.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     /// Признак перезаписи. Учитывается, если ресурс восстанавливается в папку, в которой уже есть ресурс с таким именем.

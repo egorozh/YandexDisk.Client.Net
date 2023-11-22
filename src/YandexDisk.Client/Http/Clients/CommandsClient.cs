@@ -86,9 +86,11 @@ internal class CommandsClient(ApiContext apiContext) : DiskClientBase(apiContext
         NameValueCollection query = new(capacity: 3)
         {
             { "path", request.Path },
-            { "name", request.Name },
             { "overwrite", request.Overwrite.ToString().ToLower() }
         };
+        
+        if (!string.IsNullOrWhiteSpace(request.Name))
+            query.Add("name", request.Name);
         
         var response = await PutAsync(HttpObjectType.Json, "trash/resources", query, HttpObject.FromNull(),
             cancellationToken);

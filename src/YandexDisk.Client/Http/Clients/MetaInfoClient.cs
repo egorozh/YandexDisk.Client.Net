@@ -23,7 +23,6 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
     {
         NameValueCollection query = new(capacity: 4)
         {
-            { "sort", request.Sort },
             { "path", request.Path }
         };
 
@@ -32,6 +31,9 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 
         if (request.Offset.HasValue)
             query.Add("offset", request.Offset.Value.ToString());
+        
+        if (!string.IsNullOrWhiteSpace(request.Sort))
+            query.Add("sort", request.Sort);
 
         var response = await GetAsync(HttpObjectType.Json, "resources", query, cancellationToken);
 
@@ -43,7 +45,6 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
     {
         NameValueCollection query = new(capacity: 4)
         {
-            { "sort", request.Sort },
             { "path", request.Path }
         };
 
@@ -52,6 +53,9 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 
         if (request.Offset.HasValue)
             query.Add("offset", request.Offset.Value.ToString());
+        
+        if (!string.IsNullOrWhiteSpace(request.Sort))
+            query.Add("sort", request.Sort);
 
         var response = await GetAsync(HttpObjectType.Json, "trash/resources", query, cancellationToken);
 
@@ -61,10 +65,10 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
     public async Task<FilesResourceList> GetFilesInfoAsync(FilesResourceRequest request,
         CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 3)
-        {
-            { "media_type", MediaTypesToString(request.MediaType) }
-        };
+        NameValueCollection query = new(capacity: 3);
+        
+        if (request.MediaType is not null && request.MediaType.Length > 0)
+            query.Add("media_type", MediaTypesToString(request.MediaType));
 
         if (request.Limit.HasValue)
             query.Add("limit", request.Limit.Value.ToString());
@@ -80,10 +84,10 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
     public async Task<LastUploadedResourceList> GetLastUploadedInfoAsync(LastUploadedResourceRequest request,
         CancellationToken cancellationToken = default)
     {
-        NameValueCollection query = new(capacity: 2)
-        {
-            { "media_type", MediaTypesToString(request.MediaType) }
-        };
+        NameValueCollection query = new(capacity: 2);
+        
+        if (request.MediaType is not null && request.MediaType.Length > 0)
+            query.Add("media_type", MediaTypesToString(request.MediaType));
 
         if (request.Limit.HasValue)
             query.Add("limit", request.Limit.Value.ToString());
