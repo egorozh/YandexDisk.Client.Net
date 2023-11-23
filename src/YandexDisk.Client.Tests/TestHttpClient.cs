@@ -3,8 +3,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Egorozh.YandexDisk.Client.Http;
 using NUnit.Framework;
-using YandexDisk.Client.Http;
 
 namespace YandexDisk.Client.Tests
 {

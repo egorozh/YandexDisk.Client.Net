@@ -2,6 +2,8 @@
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
+using Egorozh.YandexDisk.Client.Http;
+using Egorozh.YandexDisk.Client.Protocol;
 using YandexDisk.Client.Http;
 
 namespace YandexDisk.Client.CLI
@@ -17,7 +19,7 @@ namespace YandexDisk.Client.CLI
         public async Task ExecuteAsync(DownloadOptions options) {
             Console.WriteLine($"Receiving resource info from yandex.disk...");
 
-            var resource = await DiskClient.MetaInfo.GetInfoAsync(new Protocol.ResourceRequest() { Path = options.Source }).ConfigureAwait(false);
+            var resource = await DiskClient.MetaInfo.GetInfoAsync(new ResourceRequest() { Path = options.Source }).ConfigureAwait(false);
             if (resource == null)
             {
                 throw new Exception($"Resource {options.Source} does not exist on disk");
@@ -35,7 +37,7 @@ namespace YandexDisk.Client.CLI
             {
                 switch (resource.Type)
                 {
-                    case Protocol.ResourceType.Dir:
+                    case ResourceType.Dir:
                         if (options.Unzip)
                         {
                             SaveStreamToDirectory(downloadStream, targetDirectory);
@@ -46,7 +48,7 @@ namespace YandexDisk.Client.CLI
                         }
                         Console.WriteLine($"Directory '{options.Source}' was successfully saved in '{targetDirectory}'.");
                         break;
-                    case Protocol.ResourceType.File:
+                    case ResourceType.File:
                         SaveStreamToFile(downloadStream, Path.Combine(targetDirectory, resource.Name));
                         Console.WriteLine($"File '{options.Source}' was successfully saved in '{targetDirectory}'.");
                         break;

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Egorozh.YandexDisk.Client.Http;
+using Egorozh.YandexDisk.Client.Protocol;
 using NUnit.Framework;
-using YandexDisk.Client.Http;
-using YandexDisk.Client.Protocol;
 
 namespace YandexDisk.Client.Tests
 {
