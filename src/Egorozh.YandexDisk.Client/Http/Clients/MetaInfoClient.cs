@@ -18,70 +18,42 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 
     public Task<Resource> GetInfoAsync(ResourceRequest request, CancellationToken cancellationToken = default)
     {
-        Dictionary<string, string> query = new(capacity: 4)
-        {
-            { "path", request.Path }
-        };
-
-        if (request.Limit.HasValue)
-            query.Add("limit", request.Limit.Value.ToString());
-
-        if (request.Offset.HasValue)
-            query.Add("offset", request.Offset.Value.ToString());
+        string? query = GetQuery(
+            key1:"path", request.Path,
+            key2: "limit", request.Limit?.ToString(), 
+            key3: "offset", request.Offset?.ToString(), 
+            key4: "sort", request.Sort);
         
-        if (!string.IsNullOrWhiteSpace(request.Sort))
-            query.Add("sort", request.Sort);
-
-        return GetAsync(ResourceJsonContext.Default.Resource, "resources", ToQueryString(query), cancellationToken);
+        return GetAsync(ResourceJsonContext.Default.Resource, "resources", query, cancellationToken);
     }
 
     public Task<Resource> GetTrashInfoAsync(ResourceRequest request, CancellationToken cancellationToken = default)
     {
-        Dictionary<string, string> query = new(capacity: 4)
-        {
-            { "path", request.Path }
-        };
-
-        if (request.Limit.HasValue)
-            query.Add("limit", request.Limit.Value.ToString());
-
-        if (request.Offset.HasValue)
-            query.Add("offset", request.Offset.Value.ToString());
+        string? query = GetQuery(
+            key1:"path", request.Path,
+            key2: "limit", request.Limit?.ToString(), 
+            key3: "offset", request.Offset?.ToString(), 
+            key4: "sort", request.Sort);
         
-        if (!string.IsNullOrWhiteSpace(request.Sort))
-            query.Add("sort", request.Sort);
-
-        return GetAsync(ResourceJsonContext.Default.Resource, "trash/resources", ToQueryString(query), cancellationToken);
+        return GetAsync(ResourceJsonContext.Default.Resource, "trash/resources", query, cancellationToken);
     }
 
     public Task<FilesResourceList> GetFilesInfoAsync(FilesResourceRequest request, CancellationToken cancellationToken = default)
     {
-        Dictionary<string, string> query = new(capacity: 3);
+        string? query = GetQuery(
+            key1: "media_type", MediaTypesToString(request.MediaType), 
+            key2: "limit", request.Limit?.ToString(), 
+            key3: "offset", request.Offset?.ToString());
         
-        if (request.MediaType is not null && request.MediaType.Length > 0)
-            query.Add("media_type", MediaTypesToString(request.MediaType));
-
-        if (request.Limit.HasValue)
-            query.Add("limit", request.Limit.Value.ToString());
-
-        if (request.Offset.HasValue)
-            query.Add("offset", request.Offset.Value.ToString());
-
-        return GetAsync(FilesResourceListJsonContext.Default.FilesResourceList, "resources/files", ToQueryString(query), cancellationToken);
+        return GetAsync(FilesResourceListJsonContext.Default.FilesResourceList, "resources/files", query, cancellationToken);
     }
 
     public Task<LastUploadedResourceList> GetLastUploadedInfoAsync(LastUploadedResourceRequest request, CancellationToken cancellationToken = default)
     {
-        string? query = null;
+        string? query = GetQuery(
+            key1: "media_type", MediaTypesToString(request.MediaType),
+            key2: "limit", request.Limit?.ToString());
         
-        if (request.MediaType is not null && request.MediaType.Length > 0)
-            query = request.Limit.HasValue 
-                ? GetQuery("media_type", MediaTypesToString(request.MediaType), "limit", request.Limit.Value.ToString())
-                : GetQuery("media_type", MediaTypesToString(request.MediaType));
-
-        else if (request.Limit.HasValue)
-            query = GetQuery("limit", request.Limit.Value.ToString());
-
         return GetAsync(LastUploadedResourceListJsonContext.Default.LastUploadedResourceList, "resources/last-uploaded", query, cancellationToken);
     }
 
@@ -92,27 +64,28 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
             new CustomPropertiesDto { CustomProperties = customProperties },
             CustomPropertiesJsonContext.Default.CustomPropertiesDto);
 
-        string query = GetQuery("path", path);
+        string? query = GetQuery("path", path);
 
         return PatchAsync(ResourceJsonContext.Default.Resource, "resources", query, request, cancellationToken);
     }
 
     public Task<Link> PublishFolderAsync(string path, CancellationToken cancellationToken = default)
     {
-        string query = GetQuery("path", path);
+        string? query = GetQuery("path", path);
 
         return PutAsync(LinkJsonContext.Default.Link, "resources/publish", query, cancellationToken);
     }
 
     public Task<Link> UnpublishFolderAsync(string path, CancellationToken cancellationToken = default)
     {
-        string query = GetQuery("path", path);
+        string? query = GetQuery("path", path);
 
         return PutAsync(LinkJsonContext.Default.Link, "resources/unpublish", query, cancellationToken);
     }
 
 
-    private static string MediaTypesToString(MediaType[] mediaTypes) => string.Join(",", mediaTypes.Select(t => t.GetName().ToLower()));
+    private static string? MediaTypesToString(MediaType[]? mediaTypes) => mediaTypes is not null 
+        ? string.Join(",", mediaTypes.Select(t => t.GetName().ToLower())) : null;
 }
 
 internal class CustomPropertiesDto

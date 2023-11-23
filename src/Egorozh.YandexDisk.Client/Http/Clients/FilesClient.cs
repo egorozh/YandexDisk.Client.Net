@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
@@ -13,7 +12,7 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
 {
     public Task<Link> GetUploadLinkAsync(string path, bool overwrite, CancellationToken cancellationToken = default)
     {
-        string query = GetQuery("path", path, "overwrite", overwrite.ToString().ToLower());
+        string? query = GetQuery("path", path, "overwrite", overwrite.ToString().ToLower());
 
         return GetAsync(LinkJsonContext.Default.Link, "resources/upload", query, cancellationToken);
     }
@@ -33,7 +32,7 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
 
     public Task<Link> GetDownloadLinkAsync(string path, CancellationToken cancellationToken)
     {
-        string query = GetQuery("path", path);
+        string? query = GetQuery("path", path);
 
         return GetAsync(LinkJsonContext.Default.Link, "resources/download", query, cancellationToken);
     }
