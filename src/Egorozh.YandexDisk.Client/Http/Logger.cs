@@ -15,6 +15,7 @@ internal class Logger(ILogSaver log) : ILogger
     public async Task SetRequestAsync(HttpRequestMessage request)
     {
         _requestLog.Headers = request.ToString();
+        _requestLog.Uri = request.RequestUri?.ToString();
         if (request.Content != null)
         {
             _requestLog.Body = await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false);

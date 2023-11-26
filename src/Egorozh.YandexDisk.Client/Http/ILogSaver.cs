@@ -22,7 +22,7 @@ public class RequestLog
     /// <summary>
     /// Request Url
     /// </summary>
-    public string Uri { get; set; }
+    public string? Uri { get; set; }
 
     /// <summary>
     /// Sent headers to Yandex
