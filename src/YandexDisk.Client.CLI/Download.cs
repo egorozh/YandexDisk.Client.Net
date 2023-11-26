@@ -4,7 +4,6 @@ using System.IO.Compression;
 using System.Threading.Tasks;
 using Egorozh.YandexDisk.Client.Http;
 using Egorozh.YandexDisk.Client.Protocol;
-using YandexDisk.Client.Http;
 
 namespace YandexDisk.Client.CLI
 {

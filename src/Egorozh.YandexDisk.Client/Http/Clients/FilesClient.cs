@@ -51,11 +51,7 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
     }
 
     
-    /// <summary>
-    /// Download mode without waiting for the file to be completely downloaded to the stream
-    /// </summary>
-    /// <returns>Stream and content length</returns>
-    public async Task<(Stream, long)> DownloadAsCompletionHeadersAsync(Link link, CancellationToken cancellationToken = default)
+    public async Task<(Stream, long)> DownloadFastAsync(Link link, CancellationToken cancellationToken = default)
     {
         var url = new Uri(link.Href);
 

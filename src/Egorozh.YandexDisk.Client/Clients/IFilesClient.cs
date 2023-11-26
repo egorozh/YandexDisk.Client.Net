@@ -34,4 +34,11 @@ public interface IFilesClient
     /// Download file from Disk on link recivied by <see cref="GetDownloadLinkAsync"/>
     /// </summary>
     Task<Stream> DownloadAsync(Link link, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Download file from Disk on link recivied by <see cref="GetDownloadLinkAsync"/>
+    /// without waiting for the file to be completely downloaded to the stream
+    /// </summary>
+    /// <returns>Stream and content length</returns>
+    Task<(Stream, long)> DownloadFastAsync(Link link, CancellationToken cancellationToken = default);
 }
