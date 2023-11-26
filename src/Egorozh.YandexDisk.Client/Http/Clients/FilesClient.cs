@@ -62,10 +62,10 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
         HttpResponseMessage responseMessage = await SendAsyncImpl(requestMessage, cancellationToken, HttpCompletionOption.ResponseHeadersRead)
             .ConfigureAwait(false);
 
-        var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-
         long contentLength = responseMessage.Content.Headers.ContentLength ?? 0;
-
+        
+        var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        
         return (stream, contentLength);
     }
 }

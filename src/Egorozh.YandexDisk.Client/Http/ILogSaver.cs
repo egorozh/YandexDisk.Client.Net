@@ -48,7 +48,7 @@ public class ResponseLog
     /// <summary>
     /// Response body from Yandex
     /// </summary>
-    public byte[] Body { get; set; }
+    public byte[]? Body { get; set; }
 
     /// <summary>
     /// Response headers from Yandex

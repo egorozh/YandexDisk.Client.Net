@@ -91,7 +91,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        using (ILogger logger = GetLogger())
+        using (ILogger logger = LoggerFactory.GetLogger(_logSaver))
         {
             await logger.SetRequestAsync(request).ConfigureAwait(false);
 
@@ -100,7 +100,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
                 HttpResponseMessage response =
                     await _httpClient.SendAsync(request, cancellationToken, completionMode).ConfigureAwait(false);
 
-                await logger.SetResponseAsync(response).ConfigureAwait(false);
+                await logger.SetResponseAsync(response, completionMode).ConfigureAwait(false);
 
                 await EnsureSuccessStatusCode(response).ConfigureAwait(false);
 
@@ -117,9 +117,6 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
         }
     }
     
-
-    private ILogger GetLogger() => LoggerFactory.GetLogger(_logSaver);
-
 
     private Uri GetUrl(string relativeUrl, string? queryRequest = null)
     {
