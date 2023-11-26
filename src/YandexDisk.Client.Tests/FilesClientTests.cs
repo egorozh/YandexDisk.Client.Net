@@ -26,7 +26,6 @@ public class FilesClientTests
 ");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl, 
-            TestHttpClient.ApiKey, 
             logSaver: null,
             httpClient: httpClientTest);
 
@@ -55,7 +54,6 @@ public class FilesClientTests
             result: @"");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 
@@ -78,7 +76,6 @@ public class FilesClientTests
 ");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 
@@ -107,7 +104,6 @@ public class FilesClientTests
             result: @"Test file content");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 

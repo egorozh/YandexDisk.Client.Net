@@ -4,10 +4,13 @@ using System.Threading.Tasks;
 
 namespace Egorozh.YandexDisk.Client.Http;
 
-internal class RealHttpClientWrapper(HttpMessageInvoker httpMessageInvoker) : IHttpClient
+internal class RealHttpClientWrapper(HttpClient httpClient) : IHttpClient
 {
-    public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) 
-        => httpMessageInvoker.SendAsync(request, cancellationToken);
+    public Task<HttpResponseMessage> SendAsync(
+        HttpRequestMessage request, 
+        CancellationToken cancellationToken, 
+        HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead) 
+        => httpClient.SendAsync(request, completionOption, cancellationToken);
 
-    public void Dispose() => httpMessageInvoker.Dispose();
+    public void Dispose() => httpClient.Dispose();
 }

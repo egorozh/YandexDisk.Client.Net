@@ -454,7 +454,6 @@ namespace YandexDisk.Client.Tests
         private static DiskHttpApi CreateDiskApi(TestHttpClient httpClientTest)
         {
             return new DiskHttpApi(TestHttpClient.BaseUrl,
-                TestHttpClient.ApiKey,
                 logSaver: null,
                 httpClient: httpClientTest);
         }

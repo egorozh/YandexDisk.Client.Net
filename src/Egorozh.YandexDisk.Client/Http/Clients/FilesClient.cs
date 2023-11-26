@@ -49,4 +49,27 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
 
         return await responseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
     }
+
+    
+    /// <summary>
+    /// Download mode without waiting for the file to be completely downloaded to the stream
+    /// </summary>
+    /// <returns>Stream and content length</returns>
+    public async Task<(Stream, long)> DownloadAsCompletionHeadersAsync(Link link, CancellationToken cancellationToken = default)
+    {
+        var url = new Uri(link.Href);
+
+        var method = new HttpMethod(link.Method);
+
+        var requestMessage = new HttpRequestMessage(method, url);
+
+        HttpResponseMessage responseMessage = await SendAsyncImpl(requestMessage, cancellationToken, HttpCompletionOption.ResponseHeadersRead)
+            .ConfigureAwait(false);
+
+        var stream = await responseMessage.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+
+        long contentLength = responseMessage.Content.Headers.ContentLength ?? 0;
+
+        return (stream, contentLength);
+    }
 }

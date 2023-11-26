@@ -33,7 +33,7 @@ namespace YandexDisk.Client.Tests
             _result = result;
         }
 
-        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken, HttpCompletionOption completionOption)
         {
             Assert.NotNull(request);
             Assert.AreEqual(_methodName, request.Method.Method);

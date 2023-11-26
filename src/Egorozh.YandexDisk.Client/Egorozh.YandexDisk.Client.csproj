@@ -4,7 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>preview</LangVersion>
         <IsAotCompatible>true</IsAotCompatible>
-        <Version>8.0.3</Version>
+        <Version>8.0.4</Version>
         <Product>Yandex Disk RestAPI Client for .NET</Product>
         <Description>.NET library wrapper of Yandex Desktop RestAPI.
             See https://tech.yandex.ru/disk/
@@ -22,6 +22,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Nullable>enable</Nullable>
         <PackageId>Egorozh.YandexDisk.Client</PackageId>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -37,4 +38,8 @@
       </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\..\README.md" Pack="true" Visible="false" PackagePath="\"/>
+    </ItemGroup>
+    
 </Project>

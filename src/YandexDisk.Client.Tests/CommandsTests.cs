@@ -25,7 +25,6 @@ public class CommandsTests
 ");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 
@@ -53,7 +52,6 @@ public class CommandsTests
 ");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 
@@ -85,7 +83,6 @@ public class CommandsTests
 ");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 
@@ -118,7 +115,6 @@ public class CommandsTests
 ");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 
@@ -149,7 +145,6 @@ public class CommandsTests
 ");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 
@@ -177,7 +172,6 @@ public class CommandsTests
 ");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 
@@ -207,7 +201,6 @@ public class CommandsTests
 ");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 
@@ -235,7 +228,6 @@ public class CommandsTests
 ");
 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl,
-            TestHttpClient.ApiKey,
             logSaver: null,
             httpClient: httpClientTest);
 

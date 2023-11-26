@@ -86,7 +86,8 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
     }
     
     
-    protected async Task<HttpResponseMessage> SendAsyncImpl(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected async Task<HttpResponseMessage> SendAsyncImpl(HttpRequestMessage request,
+        CancellationToken cancellationToken, HttpCompletionOption completionMode = HttpCompletionOption.ResponseContentRead)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -97,7 +98,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
             try
             {
                 HttpResponseMessage response =
-                    await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                    await _httpClient.SendAsync(request, cancellationToken, completionMode).ConfigureAwait(false);
 
                 await logger.SetResponseAsync(response).ConfigureAwait(false);
 

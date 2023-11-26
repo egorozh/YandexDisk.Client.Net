@@ -12,12 +12,12 @@ namespace Egorozh.YandexDisk.Client.Http;
 public class DiskHttpApi : IDiskApi
 {
     private readonly IHttpClient _httpClient;
+    
+    
+    /// <summary>Default base url to Yandex Disk API</summary>
+    public const string YandexDiskApiBaseUrl = "https://cloud-api.yandex.net/v1/disk/";
 
-    /// <summary>
-    /// Default base url to Yandex Disk API
-    /// </summary>
-    public string BaseUrl { get; } = "https://cloud-api.yandex.net/v1/disk/";
-
+    
     /// <summary>
     /// Create new instance of DiskHttpApi. Keep one instance for all requests.
     /// </summary>
@@ -37,7 +37,7 @@ public class DiskHttpApi : IDiskApi
 
         _httpClient = new RealHttpClientWrapper(httpClient);
 
-        var apiContext = new ApiContext(_httpClient, new Uri(BaseUrl), logSaver);
+        var apiContext = new ApiContext(_httpClient, new Uri(YandexDiskApiBaseUrl), logSaver);
 
         Files = new FilesClient(apiContext);
         MetaInfo = new MetaInfoClient(apiContext);
@@ -48,15 +48,10 @@ public class DiskHttpApi : IDiskApi
     /// Create new instance of DiskHttpApi. Keep one instance for all requests.
     /// </summary>
     /// <param name="baseUrl">Base url to Yandex Disk API.</param>
-    /// <param name="oauthKey">
-    /// OAuth Key for authorization on API
-    /// <see href="https://tech.yandex.ru/disk/api/concepts/quickstart-docpage/"/>
-    /// </param>
     /// <param name="logSaver">Instance of custom logger.</param>
     /// <param name="httpClient"></param>
-    public DiskHttpApi(string baseUrl, string oauthKey, ILogSaver? logSaver, IHttpClient httpClient)
+    public DiskHttpApi(string baseUrl, ILogSaver? logSaver, IHttpClient httpClient)
     {
-        BaseUrl = baseUrl;
         _httpClient = httpClient;
         
         var apiContext = new ApiContext(httpClient,new Uri(baseUrl), logSaver);
