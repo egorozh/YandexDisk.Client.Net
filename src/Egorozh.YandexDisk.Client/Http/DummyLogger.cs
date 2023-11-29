@@ -9,7 +9,7 @@ internal class DummyLogger : ILogger
     public void Dispose()
     { }
 
-    public Task SetRequestAsync(HttpRequestMessage request)
+    public Task SetRequestAsync(HttpRequestMessage request, bool ignoredBody)
     {
         return Task.CompletedTask;
     }
