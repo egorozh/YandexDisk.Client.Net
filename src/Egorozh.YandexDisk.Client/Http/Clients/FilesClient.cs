@@ -88,7 +88,7 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
                     progressCallback?.Invoke(progressPercentage);
                 };
 
-                using var client = new HttpClient(progress);
+                using var client = HttpClientFactory.Create(progress);
 
                 var url = new Uri(link.Href);
 
