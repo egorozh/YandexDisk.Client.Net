@@ -9,7 +9,7 @@
 
     <ItemGroup>
       <PackageReference Include="BenchmarkDotNet" Version="0.13.10" />
-      <PackageReference Include="Egorozh.YandexDisk.Client" Version="8.0.2" />
+      <PackageReference Include="Egorozh.YandexDisk.Client" Version="8.0.7" />
       <PackageReference Include="YandexDisk.Client" Version="1.3.27" />
     </ItemGroup>
 

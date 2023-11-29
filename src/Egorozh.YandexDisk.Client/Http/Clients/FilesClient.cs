@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
-using System.Net.Http.Handlers;
 using System.Threading;
 using System.Threading.Tasks;
 using Egorozh.YandexDisk.Client.Clients;
+using Egorozh.YandexDisk.Client.Http.Progress;
 using Egorozh.YandexDisk.Client.Protocol;
 
 namespace Egorozh.YandexDisk.Client.Http.Clients;
@@ -88,7 +88,7 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
                     progressCallback?.Invoke(progressPercentage);
                 };
 
-                using var client = HttpClientFactory.Create(progress);
+                using var client = new HttpClient(progress);
 
                 var url = new Uri(link.Href);
 

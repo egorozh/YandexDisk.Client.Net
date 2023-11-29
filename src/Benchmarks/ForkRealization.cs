@@ -52,7 +52,6 @@ public static class ForkRealization
     public static async Task GetInfoAsync()
     { 
         var diskClient = new DiskHttpApi(TestHttpClient.BaseUrl, 
-            TestHttpClient.ApiKey, 
             logSaver: null,
             httpClient: HttpClientTest);
 
@@ -72,7 +71,7 @@ public static class ForkRealization
         public static readonly string ApiKey = "test-api-key";
 
 
-        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead)
         {
             var m = new HttpResponseMessage(httpStatusCode)
             {

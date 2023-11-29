@@ -5,6 +5,7 @@ using Benchmarks;
 
 var _ = BenchmarkRunner.Run<OriginalYaDiskClientVsFork>();
 
+[MemoryDiagnoser]
 public class OriginalYaDiskClientVsFork
 {
    
