@@ -15,7 +15,8 @@ AMD Ryzen 5 7600X, 1 CPU, 12 logical and 6 physical cores
   DefaultJob : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 
 
-| Method   | Mean         | Error      | StdDev     |
-|--------- |-------------:|-----------:|-----------:|
-| Original | 2,260.115 us | 14.9594 us | 13.9931 us |
-| Fork     |     3.898 us |  0.0339 us |  0.0317 us |
+| Method   | Mean         | Error      | StdDev     | Gen0    | Gen1    | Allocated |
+|--------- |-------------:|-----------:|-----------:|--------:|--------:|----------:|
+| Original | 2,248.342 us | 12.7236 us | 11.9017 us | 15.6250 | 11.7188 | 265.48 KB |
+| Fork     |     4.178 us |  0.0350 us |  0.0327 us |  0.5493 |  0.0076 |   9.07 KB |
+
