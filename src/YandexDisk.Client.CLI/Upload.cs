@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using Egorozh.YandexDisk.Client.Http;
-using YandexDisk.Client.Http;
 
 namespace YandexDisk.Client.CLI
 {

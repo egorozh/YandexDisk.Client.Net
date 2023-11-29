@@ -17,7 +17,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
     private readonly IHttpClient _httpClient =
         apiContext.HttpClient ?? throw new ArgumentNullException(nameof(apiContext.HttpClient));
 
-    private readonly ILogSaver? _logSaver = apiContext.LogSaver;
+    protected readonly ILogSaver? _logSaver = apiContext.LogSaver;
     private readonly Uri _baseUrl = apiContext.BaseUrl ?? throw new ArgumentNullException(nameof(apiContext.BaseUrl));
     
 
@@ -93,7 +93,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
 
         using (ILogger logger = LoggerFactory.GetLogger(_logSaver))
         {
-            await logger.SetRequestAsync(request).ConfigureAwait(false);
+            await logger.SetRequestAsync(request, ignoreBody: false).ConfigureAwait(false);
 
             try
             {
@@ -147,7 +147,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
     }
 
 
-    private async Task EnsureSuccessStatusCode(HttpResponseMessage response)
+    protected async Task EnsureSuccessStatusCode(HttpResponseMessage response)
     {
         if (!response.IsSuccessStatusCode)
         {

@@ -6,7 +6,7 @@ namespace Egorozh.YandexDisk.Client.Http;
 
 internal interface ILogger: IDisposable
 {
-    Task SetRequestAsync(HttpRequestMessage request);
+    Task SetRequestAsync(HttpRequestMessage request, bool ignoreBody);
 
     Task SetResponseAsync(HttpResponseMessage httpResponseMessage, HttpCompletionOption completionOption);
 

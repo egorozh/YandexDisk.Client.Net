@@ -12,11 +12,12 @@ internal class Logger(ILogSaver log) : ILogger
     private readonly Stopwatch _stopwatch = new();
     
 
-    public async Task SetRequestAsync(HttpRequestMessage request)
+    public async Task SetRequestAsync(HttpRequestMessage request, bool ignoreBody)
     {
         _requestLog.Headers = request.ToString();
         _requestLog.Uri = request.RequestUri?.ToString();
-        if (request.Content != null)
+        
+        if (request.Content != null && !ignoreBody)
         {
             _requestLog.Body = await request.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
         }

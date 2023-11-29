@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Egorozh.YandexDisk.Client.Protocol;
@@ -41,4 +42,11 @@ public interface IFilesClient
     /// </summary>
     /// <returns>Stream and content length</returns>
     Task<(Stream, long)> DownloadFastAsync(Link link, CancellationToken cancellationToken = default);
+
+
+    /// <summary>
+    /// Upload file to Disk on link recivied by <see cref="GetUploadLinkAsync"/>
+    /// with progress callback 
+    /// </summary>
+    Task UploadWithProgressAsync(Link link, Stream file, long fileSize, Action<double> progressCallback, CancellationToken ct = default);
 }
