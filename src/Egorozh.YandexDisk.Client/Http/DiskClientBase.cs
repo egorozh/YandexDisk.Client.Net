@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using Egorozh.YandexDisk.Client.Protocol;
@@ -18,10 +17,17 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
         apiContext.HttpClient ?? throw new ArgumentNullException(nameof(apiContext.HttpClient));
 
     protected readonly ILogSaver? _logSaver = apiContext.LogSaver;
+    
     private readonly Uri _baseUrl = apiContext.BaseUrl ?? throw new ArgumentNullException(nameof(apiContext.BaseUrl));
+
+
+    private readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        TypeInfoResolver = new ClientJsonContext()
+    };
     
 
-    protected Task<T> GetAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, string? queryRequest, CancellationToken cancellationToken)
+    protected Task<T> GetAsync<T>(string relativeUrl, string? queryRequest, CancellationToken cancellationToken)
         where T : new()
     {
         ArgumentNullException.ThrowIfNull(relativeUrl);
@@ -30,39 +36,39 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
 
         var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
-        return SendAsync(jsonTypeInfo, requestMessage, cancellationToken);
+        return SendAsync<T>(requestMessage, cancellationToken);
     }
 
 
-    protected Task<T> PostAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, string? queryRequest, CancellationToken cancellationToken) 
+    protected Task<T> PostAsync<T>(string relativeUrl, string? queryRequest, CancellationToken cancellationToken) 
         where T : new()
     {
-        return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Post, cancellationToken);
+        return RequestAsync<T>(relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Post, cancellationToken);
     }
 
 
-    protected Task<T> PutAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, string? queryRequest, CancellationToken cancellationToken) 
+    protected Task<T> PutAsync<T>(string relativeUrl, string? queryRequest, CancellationToken cancellationToken) 
         where T : new()
     {
-        return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Put, cancellationToken);
+        return RequestAsync<T>(relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Put, cancellationToken);
     }
 
 
-    protected Task<T> DeleteAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, string? queryRequest, CancellationToken cancellationToken)
+    protected Task<T> DeleteAsync<T>(string relativeUrl, string? queryRequest, CancellationToken cancellationToken)
         where T : new()
     {
-        return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Delete, cancellationToken);
+        return RequestAsync<T>(relativeUrl, queryRequest, requestJsonContent: null, HttpMethod.Delete, cancellationToken);
     }
 
 
-    protected Task<T> PatchAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, string? queryRequest,
+    protected Task<T> PatchAsync<T>(string relativeUrl, string? queryRequest,
         string? requestJsonContent, CancellationToken cancellationToken) where T : new()
     {
-        return RequestAsync(jsonTypeInfo, relativeUrl, queryRequest, requestJsonContent, new HttpMethod("PATCH"), cancellationToken);
+        return RequestAsync<T>(relativeUrl, queryRequest, requestJsonContent, new HttpMethod("PATCH"), cancellationToken);
     }
 
     
-    protected async Task<T> SendAsync<T>(JsonTypeInfo<T> jsonTypeInfo, HttpRequestMessage request, CancellationToken cancellationToken)
+    protected async Task<T> SendAsync<T>(HttpRequestMessage request, CancellationToken cancellationToken)
         where T : new()
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -73,7 +79,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
             ? await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false)
             : null;
         
-        var result = DeserializeResponse(json, jsonTypeInfo);
+        var result = DeserializeResponse<T>(json);
         
         //If response is ProtocolObjectResponse,
         //add HttpStatusCode to response
@@ -132,7 +138,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
     }
     
     
-    private async Task<T> RequestAsync<T>(JsonTypeInfo<T> jsonTypeInfo, string relativeUrl, string? queryRequest,
+    private async Task<T> RequestAsync<T>(string relativeUrl, string? queryRequest,
         string? requestJsonContent, HttpMethod httpMethod, CancellationToken cancellationToken) where T : new() 
     {
         Uri url = GetUrl(relativeUrl, queryRequest);
@@ -143,7 +149,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
         
         var requestMessage = new HttpRequestMessage(httpMethod, url) { Content = content };
 
-        return await SendAsync(jsonTypeInfo, requestMessage, cancellationToken);
+        return await SendAsync<T>(requestMessage, cancellationToken);
     }
 
 
@@ -170,8 +176,8 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
         try
         {
             return response.Content != null
-                ? JsonSerializer.Deserialize(await response.Content.ReadAsStringAsync().ConfigureAwait(false),
-                    ErrorDescriptionJsonContext.Default.ErrorDescription)
+                ? JsonSerializer.Deserialize<ErrorDescription>(await response.Content.ReadAsStringAsync().ConfigureAwait(false),
+                    _jsonOptions)
                 : null;
         }
         catch (SerializationException) //unexpected data in content
@@ -181,7 +187,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
     }
     
     
-    private static T DeserializeResponse<T>(string? json, JsonTypeInfo<T> typeInfo) where T : new()
+    private T DeserializeResponse<T>(string? json) where T : new()
     {
         if (string.IsNullOrWhiteSpace(json))
             throw new Exception($"{nameof(DiskClientBase)}.{nameof(DeserializeResponse)} - response is null");
@@ -198,7 +204,7 @@ internal abstract partial class DiskClientBase(ApiContext apiContext)
             }
             else
             {
-                result = JsonSerializer.Deserialize(json, typeInfo)
+                result = JsonSerializer.Deserialize<T>(json, _jsonOptions)
                          ?? throw new Exception($"{nameof(DiskClientBase)}.{nameof(DeserializeResponse)} - response is null");;
             }
             

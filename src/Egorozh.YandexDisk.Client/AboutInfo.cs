@@ -10,11 +10,11 @@ namespace Egorozh.YandexDisk.Client;
 public class AboutInfo
 {
     private readonly Assembly _assembly;
-    private string _productTitle;
-    private static string _version;
+    private string? _productTitle;
+    private static string? _version;
 
     /// <param name="assembly">Assembly for information providing</param>
-    public AboutInfo(Assembly assembly)
+    private AboutInfo(Assembly assembly)
     {
         _assembly = assembly;
     }
@@ -22,7 +22,7 @@ public class AboutInfo
     /// <summary>
     /// Return product title from AssemblyTitleAttribute
     /// </summary>
-    public string ProductTitle => _productTitle ?? (_productTitle = GetAttribute<AssemblyTitleAttribute>().Title);
+    public string ProductTitle => _productTitle ??= GetAttribute<AssemblyTitleAttribute>().Title;
 
     /// <summary>
     /// Return version of assembly

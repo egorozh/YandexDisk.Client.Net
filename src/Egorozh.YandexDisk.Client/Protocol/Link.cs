@@ -27,6 +27,3 @@ public class Link : ProtocolObjectResponse
     [JsonPropertyName("templated")]
     public bool Templated { get; set; }
 }
-
-[JsonSerializable(typeof(Link))]
-internal partial class LinkJsonContext : JsonSerializerContext;
