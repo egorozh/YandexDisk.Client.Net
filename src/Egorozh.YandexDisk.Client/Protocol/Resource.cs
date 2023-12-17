@@ -114,3 +114,11 @@ public enum ResourceType : byte
     /// <summary>Файл</summary>
     File
 }
+
+
+[JsonSerializable(typeof(Resource))]
+[JsonSourceGenerationOptions(
+    UseStringEnumConverter = true, 
+    PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower,
+    AllowTrailingCommas = true)]
+internal partial class ResourceJsonContext : JsonSerializerContext;

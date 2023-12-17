@@ -13,7 +13,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 {
     public Task<Disk> GetDiskInfoAsync(CancellationToken cancellationToken = default)
     {
-        return GetAsync<Disk>("", null, cancellationToken);
+        return GetAsync(DiskJsonContext.Default.Disk, "", null, cancellationToken);
     }
 
     public Task<Resource> GetInfoAsync(ResourceRequest request, CancellationToken cancellationToken = default)
@@ -24,7 +24,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
             key3: "offset", request.Offset?.ToString(), 
             key4: "sort", request.Sort);
         
-        return GetAsync<Resource>("resources", query, cancellationToken);
+        return GetAsync(ResourceJsonContext.Default.Resource, "resources", query, cancellationToken);
     }
 
     public Task<Resource> GetTrashInfoAsync(ResourceRequest request, CancellationToken cancellationToken = default)
@@ -35,7 +35,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
             key3: "offset", request.Offset?.ToString(), 
             key4: "sort", request.Sort);
         
-        return GetAsync<Resource>("trash/resources", query, cancellationToken);
+        return GetAsync(ResourceJsonContext.Default.Resource, "trash/resources", query, cancellationToken);
     }
 
     public Task<FilesResourceList> GetFilesInfoAsync(FilesResourceRequest request, CancellationToken cancellationToken = default)
@@ -45,7 +45,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
             key2: "limit", request.Limit?.ToString(), 
             key3: "offset", request.Offset?.ToString());
         
-        return GetAsync<FilesResourceList>("resources/files", query, cancellationToken);
+        return GetAsync(FilesResourceListJsonContext.Default.FilesResourceList, "resources/files", query, cancellationToken);
     }
 
     public Task<LastUploadedResourceList> GetLastUploadedInfoAsync(LastUploadedResourceRequest request, CancellationToken cancellationToken = default)
@@ -54,7 +54,7 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
             key1: "media_type", MediaTypesToString(request.MediaType),
             key2: "limit", request.Limit?.ToString());
         
-        return GetAsync<LastUploadedResourceList>("resources/last-uploaded", query, cancellationToken);
+        return GetAsync(LastUploadedResourceListJsonContext.Default.LastUploadedResourceList, "resources/last-uploaded", query, cancellationToken);
     }
 
     public Task<Resource> AppendCustomProperties(string path, IDictionary<string, string> customProperties, CancellationToken cancellationToken = default)
@@ -66,21 +66,21 @@ internal class MetaInfoClient(ApiContext apiContext) : DiskClientBase(apiContext
 
         string? query = GetQuery("path", path);
 
-        return PatchAsync<Resource>("resources", query, request, cancellationToken);
+        return PatchAsync(ResourceJsonContext.Default.Resource, "resources", query, request, cancellationToken);
     }
 
     public Task<Link> PublishFolderAsync(string path, CancellationToken cancellationToken = default)
     {
         string? query = GetQuery("path", path);
 
-        return PutAsync<Link>("resources/publish", query, cancellationToken);
+        return PutAsync(LinkJsonContext.Default.Link, "resources/publish", query, cancellationToken);
     }
 
     public Task<Link> UnpublishFolderAsync(string path, CancellationToken cancellationToken = default)
     {
         string? query = GetQuery("path", path);
 
-        return PutAsync<Link>("resources/unpublish", query, cancellationToken);
+        return PutAsync(LinkJsonContext.Default.Link, "resources/unpublish", query, cancellationToken);
     }
 
 

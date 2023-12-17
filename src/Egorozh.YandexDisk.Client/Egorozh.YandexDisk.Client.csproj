@@ -4,7 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>preview</LangVersion>
         <IsAotCompatible>true</IsAotCompatible>
-        <Version>8.0.11</Version>
+        <Version>8.0.10</Version>
         <Product>Yandex Disk RestAPI Client for .NET</Product>
         <Description>.NET library wrapper of Yandex Desktop RestAPI.
             See https://tech.yandex.ru/disk/

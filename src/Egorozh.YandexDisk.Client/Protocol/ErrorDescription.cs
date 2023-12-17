@@ -19,3 +19,6 @@ public class ErrorDescription : ProtocolObjectResponse
     [JsonPropertyName("error")]
     public string Error { get; set; }
 }
+
+[JsonSerializable(typeof(ErrorDescription))]
+internal partial class ErrorDescriptionJsonContext : JsonSerializerContext;

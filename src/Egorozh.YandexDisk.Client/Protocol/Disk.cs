@@ -50,3 +50,7 @@ public class SystemFolders
     [JsonPropertyName("downloads")]
     public string Downloads { get; set; }
 }
+
+
+[JsonSerializable(typeof(Disk))]
+internal partial class DiskJsonContext : JsonSerializerContext;

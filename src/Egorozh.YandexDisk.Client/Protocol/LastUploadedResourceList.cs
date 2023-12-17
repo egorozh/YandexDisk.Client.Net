@@ -20,3 +20,6 @@ public class LastUploadedResourceList : ProtocolObjectResponse
     [JsonPropertyName("limit")]
     public int Limit { get; set; }
 }
+
+[JsonSerializable(typeof(LastUploadedResourceList))]
+internal partial class LastUploadedResourceListJsonContext : JsonSerializerContext;

@@ -26,3 +26,7 @@ public class FilesResourceList : ProtocolObjectResponse
     [JsonPropertyName("offset")]
     public int Offset { get; set; }
 }
+
+[JsonSerializable(typeof(FilesResourceList))]
+[JsonSourceGenerationOptions()]
+internal partial class FilesResourceListJsonContext : JsonSerializerContext;

@@ -39,6 +39,10 @@ public enum OperationStatus
     InProgress,
 }
 
+[JsonSerializable(typeof(Operation))]
+[JsonSourceGenerationOptions(UseStringEnumConverter = true)]
+internal partial class OperationJsonContext : JsonSerializerContext;
+
 internal class OperationJsonConverter : JsonConverter<OperationStatus>
 {
     public override OperationStatus Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

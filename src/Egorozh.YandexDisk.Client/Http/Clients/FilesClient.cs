@@ -15,7 +15,7 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
     {
         string? query = GetQuery("path", path, "overwrite", overwrite.ToString().ToLower());
 
-        return GetAsync<Link>("resources/upload", query, cancellationToken);
+        return GetAsync(LinkJsonContext.Default.Link, "resources/upload", query, cancellationToken);
     }
 
     public Task UploadAsync(Link link, Stream file, CancellationToken cancellationToken = default)
@@ -35,7 +35,7 @@ internal class FilesClient(ApiContext apiContext) : DiskClientBase(apiContext), 
     {
         string? query = GetQuery("path", path);
 
-        return GetAsync<Link>("resources/download", query, cancellationToken);
+        return GetAsync(LinkJsonContext.Default.Link, "resources/download", query, cancellationToken);
     }
 
     public async Task<Stream> DownloadAsync(Link link, CancellationToken cancellationToken = default)
