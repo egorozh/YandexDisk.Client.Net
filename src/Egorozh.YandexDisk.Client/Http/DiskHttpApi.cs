@@ -32,7 +32,7 @@ public class DiskHttpApi : IDiskApi
      
         var httpClient = new HttpClient(clientHandler, disposeHandler: true);
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("OAuth", oauthKey);
-        httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(AboutInfo.Client.ProductTitle, AboutInfo.Client.Version));
+        httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(AboutInfo.ProductTitle, AboutInfo.Version));
         httpClient.Timeout = TimeSpan.FromHours(24); //For support large file uploading and downloading 
 
         _httpClient = new RealHttpClientWrapper(httpClient);

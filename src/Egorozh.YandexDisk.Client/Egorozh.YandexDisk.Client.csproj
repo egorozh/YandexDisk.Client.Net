@@ -4,7 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>preview</LangVersion>
         <IsAotCompatible>true</IsAotCompatible>
-        <Version>8.0.10</Version>
+        <Version>8.1.0</Version>
         <Product>Yandex Disk RestAPI Client for .NET</Product>
         <Description>.NET library wrapper of Yandex Desktop RestAPI.
             See https://tech.yandex.ru/disk/
@@ -26,20 +26,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Credfeto.Enumeration.Source.Generation" Version="1.1.1.168">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
+        <PackageReference Include="Credfeto.Enumeration.Source.Generation" Version="1.1.1.168">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Http\DiskClientBase.Query.cs">
-        <DependentUpon>DiskClientBase.cs</DependentUpon>
-      </Compile>
+        <Compile Update="Http\DiskClientBase.Query.cs">
+            <DependentUpon>DiskClientBase.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\README.md" Pack="true" Visible="false" PackagePath="\"/>
+        <None Include="..\..\README.md" Pack="true" Visible="false" PackagePath="\" />
     </ItemGroup>
-    
+
 </Project>
