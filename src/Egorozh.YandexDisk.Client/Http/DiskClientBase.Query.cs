@@ -37,7 +37,7 @@ internal abstract partial class DiskClientBase
     {
         string? query = GetQueryImpl(key2, value2, key3, value3, key4, value4);
         
-        return query is not null ? $"?{GetQueryKeyValue(key1, value1)}&{query}" : null;
+        return query is not null ? $"?{GetQueryKeyValue(key1, value1)}&{query}" : $"?{GetQueryKeyValue(key1, value1)}";
     }
 
 
