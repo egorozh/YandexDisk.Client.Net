@@ -27,7 +27,7 @@ public interface ICommandsClient
     /// <summary>
     /// Delete file or folder on Disk
     /// </summary>
-    Task<Link> DeleteAsync(DeleteFileRequest request, CancellationToken cancellationToken = default);
+    Task<Link?> DeleteAsync(DeleteFileRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Delete files in trash

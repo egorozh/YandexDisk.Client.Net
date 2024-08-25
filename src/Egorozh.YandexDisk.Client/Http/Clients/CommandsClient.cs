@@ -30,7 +30,7 @@ internal class CommandsClient(ApiContext apiContext) : DiskClientBase(apiContext
         return PostAsync(LinkJsonContext.Default.Link, "resources/move", query, cancellationToken);
     }
 
-    public Task<Link> DeleteAsync(DeleteFileRequest request, CancellationToken cancellationToken = default)
+    public Task<Link?> DeleteAsync(DeleteFileRequest request, CancellationToken cancellationToken = default)
     {
         string? query = GetQuery("path", request.Path, "permanently", request.Permanently.ToString().ToLower());
         
