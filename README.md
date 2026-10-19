@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> **This repository has moved to [XFiler-Community/YandexDisk.Client](https://github.com/XFiler-Community/YandexDisk.Client).**
+> The NuGet package is now [`XFiler.YandexDisk.Client`](https://www.nuget.org/packages/XFiler.YandexDisk.Client)
+> (namespace `XFiler.YandexDisk.Client`). `Egorozh.YandexDisk.Client` 8.2.0 is the last release under the old name.
+
 # Yandex Disk API Client for .NET
 
 [Yandex Disk Rest API](https://tech.yandex.ru/disk/rest/) client library for .NET Standard
